@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug C Program",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "D:\\GoGoFar\\Build\\Output\\GoGoFar.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "D:\\GoGoFar\\Build\\Output\\",
+      "environment": [],
+      "externalConsole": true,
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:\\MinGW\\bin\\gdb.exe",
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "os_task.h": "c",
+        "os_types.h": "c",
+        "stdint.h": "c",
+        "os.h": "c",
+        "os_cfg.h": "c",
+        "stdio.h": "c",
+        "windows.h": "c"
+    }
+}
