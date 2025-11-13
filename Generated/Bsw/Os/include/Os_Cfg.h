@@ -44,6 +44,7 @@
         /* Cycle Time */                10,                         \
         /* Action Function */           &Os_WrapperActivateTask,    \
         /* Object ID */                 0,                          \
+        /* Task ID */                   0,                          \
         /* Active */                    false                       \
     },                                                              \
     { /* AlarmEvent20ms */                                          \
@@ -52,7 +53,8 @@
         /* Alarm Time */                100,                        \
         /* Cycle Time */                20,                         \
         /* Action Function */           &Os_WrapperSetEvent,        \
-        /* Object ID */                 0,                          \
+        /* Object ID */                 1,                          \
+        /* Task ID */                   1,                          \
         /* Active */                    false                       \
     },                                                              \
     { /* AlarmCallout100ms */                                       \
@@ -62,6 +64,7 @@
         /* Cycle Time */                100,                        \
         /* Action Function */           &Os_WrapperCallout,         \
         /* Object ID */                 0,                          \
+        /* Task ID */                   0,                          \
         /* Active */                    false                       \
     }
 

@@ -9,7 +9,8 @@ void Os_WrapperActivateTask(const Os_AlarmType *alarm) {
 }
 
 void Os_WrapperSetEvent(const Os_AlarmType *alarm) {
-    OS_LOG("Alarm %d setting Event %d", alarm->AlarmID, alarm->ObjectId);
+    OS_LOG("Alarm setting Event %d for Task %d", alarm->ObjectId, alarm->TaskID);
+    Os_SetEvent(alarm->TaskID, alarm->ObjectId);
     // Implementation
 }
 

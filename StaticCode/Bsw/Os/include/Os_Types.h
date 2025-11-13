@@ -102,6 +102,7 @@ struct Os_AlarmType_t {
     TickType                CycleTime;
     Os_AlarmActionType      ActionFunction;
     Os_AlarmObjectIdType    ObjectId;
+    TaskType                TaskID;
     bool                    Active;
 } ;
 
