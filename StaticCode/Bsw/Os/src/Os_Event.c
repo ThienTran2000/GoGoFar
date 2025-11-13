@@ -65,7 +65,7 @@ StatusType WaitEvent(EventMaskType Mask) {
 
     t->WaitMask = Mask;
     t->TaskState = WAITING;
-    ReadyQueueRemove(t);
+    ReadyQueueRemove(t->TaskID);
     Schedule();
 
     return E_OK;
