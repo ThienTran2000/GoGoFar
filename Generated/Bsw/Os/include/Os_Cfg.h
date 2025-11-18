@@ -45,7 +45,7 @@
         /* Action Function */           &Os_WrapperActivateTask,    \
         /* Object ID */                 0,                          \
         /* Task ID */                   0,                          \
-        /* Active */                    false                       \
+        /* Active */                    FALSE                       \
     },                                                              \
     { /* AlarmEvent20ms */                                          \
         /* Alarm ID */                  1,                          \
@@ -55,7 +55,7 @@
         /* Action Function */           &Os_WrapperSetEvent,        \
         /* Object ID */                 1,                          \
         /* Task ID */                   1,                          \
-        /* Active */                    false                       \
+        /* Active */                    FALSE                       \
     },                                                              \
     { /* AlarmCallout100ms */                                       \
         /* Alarm ID */                  2,                          \
@@ -65,7 +65,7 @@
         /* Action Function */           &Os_WrapperCallout,         \
         /* Object ID */                 0,                          \
         /* Task ID */                   0,                          \
-        /* Active */                    false                       \
+        /* Active */                    FALSE                       \
     }
 
 #define ALARM_AUTOSTART                                             \

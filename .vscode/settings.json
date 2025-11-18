@@ -6,6 +6,8 @@
         "os.h": "c",
         "os_cfg.h": "c",
         "stdio.h": "c",
-        "windows.h": "c"
+        "windows.h": "c",
+        "os_counter.h": "c",
+        "os_porting.h": "c"
     }
 }

@@ -7,10 +7,10 @@
       "request": "launch",
       "program": "D:\\GoGoFar\\Build\\Output\\GoGoFar.exe",
       "args": [],
-      "stopAtEntry": false,
+      "stopAtEntry": FALSE,
       "cwd": "D:\\GoGoFar\\Build\\Output\\",
       "environment": [],
-      "externalConsole": true,
+      "externalConsole": TRUE,
       "MIMode": "gdb",
       "miDebuggerPath": "C:\\MinGW\\bin\\gdb.exe",
     }

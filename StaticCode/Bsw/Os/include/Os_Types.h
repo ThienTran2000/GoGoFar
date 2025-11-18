@@ -1,48 +1,49 @@
 #ifndef OS_TYPES_H
 #define OS_TYPES_H
 
-#include <stdint.h>
-#include <stdbool.h>
+#include "Os_Porting.h"
 #include "Os_Cfg.h"
 
 #define LOG_ENABLE
 
 #ifdef LOG_ENABLE
 #include <stdio.h>
-#define OS_LOG(fmt, ...) printf("[LOG] " fmt "\n", ##__VA_ARGS__)
+#define OS_LOG(fmt, ...)
 #else
 #define OS_LOG(fmt, ...)
 #endif
 
 #define INVALID_TASK        ((TaskType)0xFF)
-#define NULL_PTR            ((void *)0)
 
 /* Status type for all services */
-typedef uint8_t             StatusType;
+typedef uint8             StatusType;
 
 /* Task ID type */
-typedef uint8_t             TaskType;
+typedef uint8             TaskType;
 
 /* Event mask type */
-typedef uint32_t            EventMaskType;
+typedef uint32            EventMaskType;
 
 /* Resource ID type */
-typedef uint8_t             ResourceType;
+typedef uint8             ResourceType;
 
 /* Counter ID type */
-typedef uint8_t             CounterType;
+typedef uint8             CounterType;
 
 /* Alarm ID type */
-typedef uint8_t             AlarmType;
+typedef uint8             AlarmType;
 
 /* Tick type */
-typedef uint32_t            TickType;
+typedef uint32            TickType;
+
+/* Tick type reference  */
+typedef TickType*         TickRefType;
 
 /* Application mode type */
-typedef uint8_t             AppModeType;
+typedef uint8             AppModeType;
 
 /* Task state type */
-typedef uint8_t             TaskStateType;
+typedef uint8             TaskStateType;
 #define SUSPENDED          ((TaskStateType)0x00)
 #define READY              ((TaskStateType)0x01)
 #define RUNNING            ((TaskStateType)0x02)
@@ -58,40 +59,35 @@ typedef uint8_t             TaskStateType;
 #define E_OS_PARAM_POINTER  0x06
 
 /* Task type */
-typedef uint8_t             Os_TaskTypeType;
+typedef uint8               Os_TaskTypeType;
 #define TASK_BASIC          ((Os_TaskTypeType)0x00)
 #define TASK_EXTENDED       ((Os_TaskTypeType)0x01)
 
 /* Task preemption */
-typedef uint8_t             Os_TaskPreemptionType;
+typedef uint8               Os_TaskPreemptionType;
 #define NON_PREEMPTIVE      ((Os_TaskPreemptionType)0x00)
 #define PREEMPTIVE          ((Os_TaskPreemptionType)0x01)
 
 typedef void (*Os_EntryType)(void);
-typedef struct
-{
-    uint32_t                Os_StackPointer;
-    uint32_t                Os_MSPStackPointer;
-} Os_TaskContextType;
 
 typedef struct {
     Os_TaskContextType      Context;
     EventMaskType           EventMask;
     EventMaskType           WaitMask;
     Os_EntryType            Entry;
-    uint16_t                StackSize;
+    uint16                  StackSize;
     TaskType                TaskID;
     TaskStateType           TaskState;
-    uint8_t                 CurrentPriority;
-    uint8_t                 BasePriority;
-    uint8_t                 MaxActivations;
-    uint8_t                 QueuedActivations;
+    uint8                   CurrentPriority;
+    uint8                   BasePriority;
+    uint8                   MaxActivations;
+    uint8                   QueuedActivations;
     Os_TaskTypeType         TaskType;
     Os_TaskPreemptionType   Preemption;
-    uint8_t                 QueueIdx;
+    uint8                   QueueIdx;
 } Os_TaskControlBlockType;
 
-typedef uint8_t             Os_AlarmObjectIdType;
+typedef uint8             Os_AlarmObjectIdType;
 typedef struct Os_AlarmType_t Os_AlarmType;
 typedef void (*Os_AlarmActionType)(const Os_AlarmType *);
 
@@ -103,7 +99,7 @@ struct Os_AlarmType_t {
     Os_AlarmActionType      ActionFunction;
     Os_AlarmObjectIdType    ObjectId;
     TaskType                TaskID;
-    bool                    Active;
+    boolean                    Active;
 } ;
 
 
@@ -114,8 +110,8 @@ typedef EventMaskType*      EventMaskRefType;
 
 typedef struct {
     TaskType                Queue[QUEUE_SIZE];
-    uint8_t                 Head;
-    uint8_t                 Tail;
+    uint8                 Head;
+    uint8                 Tail;
 } ReadyQueueType;
 
 typedef struct {
@@ -126,12 +122,12 @@ typedef struct {
 
 typedef struct {
     ResourceType            ResourceID;
-    uint8_t                 CeilingPriority;
+    uint8                 CeilingPriority;
     TaskType                OwnerTask;
-    uint8_t                 Nesting;
+    uint8                 Nesting;
 } Os_ResourceType;
 
-typedef uint8_t             ProtectionReturnType;
+typedef uint8             ProtectionReturnType;
 #define PRO_SHUTDOWN        ((ProtectionReturnType)0x00)
 #define PRO_TERMINATE       ((ProtectionReturnType)0x01)
 

@@ -24,9 +24,9 @@ set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
 
 set(OUTPUT_EXTENSION ".elf")
 # Flags
-set(CMAKE_C_FLAGS_INIT "-mcpu=tc27xx -O2 -Wall -fmessage-length=0 -ffunction-sections -fdata-sections")
-set(CMAKE_ASM_FLAGS_INIT "-mcpu=tc27xx -x assembler-with-cpp")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-mcpu=tc27xx -Wl,--gc-sections -Wl,-Map=../Output/${CMAKE_PROJECT_NAME}.map")
+set(CMAKE_C_FLAGS_INIT "-mcpu=tc39xx -O2 -Wall -fmessage-length=0 -ffunction-sections -fdata-sections")
+set(CMAKE_ASM_FLAGS_INIT "-mcpu=tc39xx -x assembler-with-cpp")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-mcpu=tc39xx -Wl,--gc-sections -Wl,-Map=../Output/${CMAKE_PROJECT_NAME}.map")
 
 # Optional: custom linker script
 set(LINKER_SCRIPT "../Linker/linker_tc397.ld")

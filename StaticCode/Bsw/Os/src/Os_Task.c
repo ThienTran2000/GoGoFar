@@ -2,22 +2,10 @@
 #include "Os_Queue.h"
 #include "Os_Types.h"
 #include "Os_Cfg.h"
-#include <stdio.h>
 
 Os_TaskControlBlockType Os_TaskTable[NUMBER_OF_TASKS] = {TASK_INIT};
 TaskType Os_AutoStartTasks[NUMBER_OF_AUTOSTART_TASKS] = {TASK_AUTOSTART};
 TaskType Os_RunningTask = INVALID_TASK;
-
-static void Os_SaveContext(Os_TaskContextType* ctx)
-{
-    ctx->Os_StackPointer = 0;
-    ctx->Os_MSPStackPointer = 0;
-}
-
-static void Os_RestoreContext(Os_TaskContextType* ctx)
-{
-    Os_TaskTable[Os_RunningTask].Entry();
-}
 
 void Os_IdleTask(void)
 {
@@ -183,7 +171,7 @@ StatusType GetTaskState(TaskType TaskID, TaskStateRefType StateRef)
 
 void Os_ActivateAutoStartTasks(void)
 {
-    for (uint8_t i = 0; i < NUMBER_OF_AUTOSTART_TASKS; i++) {
+    for (uint8 i = 0; i < NUMBER_OF_AUTOSTART_TASKS; i++) {
         ActivateTask(Os_AutoStartTasks[i]);
     }
 }
