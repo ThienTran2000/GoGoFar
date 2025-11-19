@@ -6,6 +6,8 @@ Os_AlarmType Alarms[NUMBER_OF_ALARMS] = {ALARM_INIT};
 
 AlarmType AlarmAutoStart[NUMBER_OF_ALARM_AUTOSTARTS] = {ALARM_AUTOSTART};
 
+extern Os_CounterType* GetCounter(CounterType id);
+
 static Os_AlarmType* GetAlarm(AlarmType id) {
     if (id >= NUMBER_OF_ALARMS) return NULL_PTR;
     return &Alarms[id];

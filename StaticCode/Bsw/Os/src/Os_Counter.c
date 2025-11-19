@@ -3,7 +3,7 @@
 
 Os_CounterType Counters[NUMBER_OF_COUNTERS] = {COUNTER_INIT};
 
-static Os_CounterType* GetCounter(CounterType id)
+Os_CounterType* GetCounter(CounterType id)
 {
     if (id >= NUMBER_OF_COUNTERS) return NULL_PTR;
     return &Counters[id];
