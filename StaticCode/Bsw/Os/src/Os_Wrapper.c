@@ -15,5 +15,5 @@ void Os_WrapperSetEvent(const Os_AlarmType *alarm) {
 }
 
 void Os_WrapperCallout(const Os_AlarmType *alarm) {
-    OS_LOG("Alarm %d calling out Task %d", alarm->AlarmID, alarm->ObjectId);
+    OS_LOG("Alarm %d callout", alarm->AlarmID);
 }

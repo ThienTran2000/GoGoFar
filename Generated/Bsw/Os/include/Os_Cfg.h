@@ -54,14 +54,14 @@
         /* Cycle Time */                20,                         \
         /* Action Function */           &Os_WrapperSetEvent,        \
         /* Object ID */                 1,                          \
-        /* Task ID */                   1,                          \
+        /* Task ID */                   2,                          \
         /* Active */                    false                       \
     },                                                              \
     { /* AlarmCallout100ms */                                       \
         /* Alarm ID */                  2,                          \
         /* Counter ID */                0,                          \
         /* Alarm Time */                100,                        \
-        /* Cycle Time */                100,                        \
+        /* Cycle Time */                10,                        \
         /* Action Function */           &Os_WrapperCallout,         \
         /* Object ID */                 0,                          \
         /* Task ID */                   0,                          \

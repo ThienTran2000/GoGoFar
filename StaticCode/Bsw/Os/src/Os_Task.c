@@ -7,6 +7,8 @@
 Os_TaskControlBlockType Os_TaskTable[NUMBER_OF_TASKS] = {TASK_INIT};
 TaskType Os_AutoStartTasks[NUMBER_OF_AUTOSTART_TASKS] = {TASK_AUTOSTART};
 TaskType Os_RunningTask = INVALID_TASK;
+volatile int Os_ISR_Level = 0;
+volatile bool Os_DeferredSchedule = false;
 
 static void Os_SaveContext(Os_TaskContextType* ctx)
 {
@@ -23,7 +25,6 @@ void Os_IdleTask(void)
 {
     for(;;)
     {
-        // idle loop
     }
 }
 
@@ -31,14 +32,10 @@ static void Os_Dispatch(TaskType next)
 {
     TaskType current = Os_RunningTask;
     CALL_POST_TASK_HOOK();
-    printf("Dispatching from Task %d to Task %d\n", current, next);
     if (current != INVALID_TASK) {
-        printf("Saved context of Task %d\n", current);
         Os_SaveContext(&Os_TaskTable[current].Context);
-        printf("Current Task %d state: %d\n", current, Os_TaskTable[current].TaskState);
         if (Os_TaskTable[current].TaskState == RUNNING) {
             Os_TaskTable[current].TaskState = READY;
-            printf("Task %d state changed to READY\n", current);
             ReadyQueuePush(current);
             OS_LOG("Task %d moved to READY", current);
         }
@@ -53,10 +50,11 @@ static void Os_Dispatch(TaskType next)
     Os_RestoreContext(&Os_TaskTable[next].Context);
 }
 
-static void Os_Schedule(void)
+void Os_Schedule(void)
 {
+    Os_DeferredSchedule = false;
     TaskType next = GetHighestReady();
-
+    OS_LOG("Call scheduler");
     if (next != INVALID_TASK) {
         if (Os_RunningTask == INVALID_TASK) {
             OS_LOG("No task running, dispatching Task %d", next);
@@ -106,7 +104,11 @@ StatusType ActivateTask(TaskType TaskID)
         OS_LOG("Task %d queued activation, count=%d", TaskID, tcb->QueuedActivations);
     }
 
-    Os_Schedule();
+    if (Os_ISR_Level > 0) {
+        Os_DeferredSchedule = true;
+    } else {
+        Os_Schedule();
+    }
     return E_OK;
 }
 
@@ -133,7 +135,11 @@ StatusType TerminateTask(void)
     }
 
     Os_RunningTask = INVALID_TASK;
-    Os_Schedule();
+    if (Os_ISR_Level > 0) {
+        Os_DeferredSchedule = true;
+    } else {
+        Os_Schedule();
+    }
     return E_OK;
 }
 
@@ -144,8 +150,56 @@ StatusType ChainTask(TaskType TaskID)
         return E_OS_ID;
     }
     OS_LOG("ChainTask: Terminating current task and activating Task %d", TaskID);
-    TerminateTask();
-    ActivateTask(TaskID);
+
+    if (Os_RunningTask == INVALID_TASK) {
+        OS_LOG("TerminateTask failed: no running task");
+        CALL_ERROR_HOOK(E_OS_STATE);
+        return E_OS_STATE;
+    }
+
+    Os_TaskControlBlockType* tcb = &Os_TaskTable[Os_RunningTask];
+
+    if (tcb->QueuedActivations > 1) {
+        tcb->QueuedActivations--;
+        tcb->TaskState = READY;
+        ReadyQueuePush(tcb->TaskID);
+        OS_LOG("Task %d re-queued, remaining activations=%d", tcb->TaskID, tcb->QueuedActivations);
+    } else {
+        tcb->TaskState = SUSPENDED;
+        tcb->QueuedActivations = 0;
+        OS_LOG("Task %d terminated and moved to SUSPENDED", tcb->TaskID);
+    }
+
+    Os_RunningTask = INVALID_TASK;
+
+    if (TaskID >= NUMBER_OF_TASKS) {
+        OS_LOG("ActivateTask failed: invalid ID %d", TaskID);
+        CALL_ERROR_HOOK(E_OS_ID);
+        return E_OS_ID;
+    }
+
+    tcb = &Os_TaskTable[TaskID];
+
+    if (tcb->TaskState == SUSPENDED) {
+        tcb->TaskState = READY;
+        tcb->QueuedActivations = 1;
+        ReadyQueuePush(TaskID);
+        OS_LOG("Task %d activated from SUSPENDED", TaskID);
+    } else {
+        if (tcb->QueuedActivations >= tcb->MaxActivations) {
+            OS_LOG("Task %d activation limit reached", TaskID);
+            CALL_ERROR_HOOK(E_OS_LIMIT);
+            return E_OS_LIMIT;
+        }
+        tcb->QueuedActivations++;
+        OS_LOG("Task %d queued activation, count=%d", TaskID, tcb->QueuedActivations);
+    }
+
+    if (Os_ISR_Level > 0) {
+        Os_DeferredSchedule = true;
+    } else {
+        Os_Schedule();
+    }
 
     return E_OK;
 }
@@ -183,7 +237,15 @@ StatusType GetTaskState(TaskType TaskID, TaskStateRefType StateRef)
 
 void Os_ActivateAutoStartTasks(void)
 {
+    TaskType TaskID;
     for (uint8_t i = 0; i < NUMBER_OF_AUTOSTART_TASKS; i++) {
-        ActivateTask(Os_AutoStartTasks[i]);
+        TaskID = Os_AutoStartTasks[i];
+
+        Os_TaskControlBlockType* tcb = &Os_TaskTable[TaskID];
+
+        tcb->TaskState = READY;
+        tcb->QueuedActivations = 1;
+        ReadyQueuePush(TaskID);
+        OS_LOG("Auto start Task: TaskID=%d", TaskID);
     }
 }

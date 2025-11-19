@@ -8,7 +8,7 @@ VOID CALLBACK TimerProc(PVOID lpParam, BOOLEAN TimerOrWaitFired) {
 
 int main(void) {
     HANDLE hTimer = NULL;
-    CreateTimerQueueTimer(&hTimer, NULL, TimerProc, NULL, 1, 1, WT_EXECUTEDEFAULT);
+    CreateTimerQueueTimer(&hTimer, NULL, TimerProc, NULL, 10, 10, WT_EXECUTEDEFAULT);
 
     StartOS(OSDEFAULTAPPMODE);
     return 0;

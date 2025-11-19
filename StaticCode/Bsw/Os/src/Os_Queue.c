@@ -49,9 +49,11 @@ void ReadyQueueRemove(TaskType t) {
 }
 
 TaskType GetHighestReady(void) {
+    TaskType TaskID;
     for (uint8_t prio = 0; prio < MAX_PRIORITY; prio++) {
         if (!ReadyQueueEmpty(&ReadyQueue[prio])) {
-            return ReadyQueueFront(&ReadyQueue[prio]);
+            TaskID = ReadyQueueFront(&ReadyQueue[prio]);
+            return TaskID;
         }
     }
     return INVALID_TASK;

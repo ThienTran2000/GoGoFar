@@ -183,5 +183,8 @@ extern ProtectionReturnType ProtectionHook(StatusType FatalError);
 #define CALL_PROTECTION_HOOK(err)
 #endif
 
+#define ENTER_ISR2()   do { Os_ISR_Level++; } while (0)
+#define EXIT_ISR2()    do { Os_ISR_Level--; if (Os_ISR_Level == 0 && Os_DeferredSchedule) Os_Schedule(); } while (0)
+
 #endif /* OS_TYPES_H */
 

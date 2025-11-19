@@ -1,10 +1,13 @@
 #include "Os_Alarm.h"
 #include "Os_Cfg.h"
 #include "Os_Wrapper.h"
+#include "Os_Task.h"
 
 Os_AlarmType Alarms[NUMBER_OF_ALARMS] = {ALARM_INIT};
 Os_CounterType Counters[NUMBER_OF_COUNTERS] = {COUNTER_INIT};
 AlarmType AlarmAutoStart[NUMBER_OF_ALARM_AUTOSTARTS] = {ALARM_AUTOSTART};
+extern volatile int Os_ISR_Level;
+extern volatile bool Os_DeferredSchedule;
 
 static Os_AlarmType* GetAlarm(AlarmType id) {
     if (id >= NUMBER_OF_ALARMS) return NULL_PTR;
@@ -108,33 +111,44 @@ StatusType GetCounterMax(CounterType CounterID, TickType *Value) {
 }
 
 void CounterTickHandler(CounterType CounterID) {
+    ENTER_ISR2();
     Os_CounterType* c = GetCounter(CounterID);
-    if (NULL_PTR == c) {
+    if (c == NULL_PTR) {
         return;
     }
 
-    if (++c->CurrentTick > c->MaxTick) {
+    /* update hardware counter with wrap */
+    c->CurrentTick++;
+    if (c->CurrentTick > c->MaxTick) {
         c->CurrentTick = 0;
     }
-
     for (int i = 0; i < NUMBER_OF_ALARMS; i++) {
         Os_AlarmType* a = &Alarms[i];
-        if (a->Active && a->CounterID == CounterID) {
-            if (a->AlarmTime == c->CurrentTick) {
-                if (a->ActionFunction) {
-                    a->ActionFunction(a);
-                }
 
-                if (a->CycleTime > 0) {
-                    // reschedule next tick
-                    a->AlarmTime += a->CycleTime;
-                } else {
-                    // one-shot, deactivate
-                    a->Active = false;
+        if (!a->Active || a->CounterID != CounterID)
+            continue;
+
+        /* Check if alarm should fire */
+        if (a->AlarmTime == c->CurrentTick) {
+
+            /* Action */
+            if (a->ActionFunction) {
+                a->ActionFunction(a);
+            }
+
+            if (a->CycleTime > 0) {
+                /* reschedule with wrap-around */
+                a->AlarmTime += a->CycleTime;
+                if (a->AlarmTime > c->MaxTick) {
+                    a->AlarmTime %= (c->MaxTick + 1);
                 }
+            } else {
+                /* one-shot */
+                a->Active = false;
             }
         }
     }
+    EXIT_ISR2();
 }
 
 void Os_ActivateAutoStartAlarms(void)

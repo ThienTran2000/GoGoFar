@@ -1,7 +1,7 @@
 #include "Os.h"
 
 extern void ReadyQueueInit(ReadyQueueType* q);
-extern ReadyQueueType ReadyQueue[];
+extern ReadyQueueType ReadyQueue[MAX_PRIORITY];
 bool Os_Running = false;
 
 StatusType GetActiveApplicationMode(AppModeType *Mode) {
@@ -28,7 +28,7 @@ StatusType StartOS(AppModeType mode)
 #endif
 
     Schedule();
-
+    
     // Should never reach here
     return E_OK;
 }
