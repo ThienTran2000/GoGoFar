@@ -40,7 +40,7 @@
     { /* AlarmTimingTask10ms */                                     \
         /* Alarm ID */                  0,                          \
         /* Counter ID */                0,                          \
-        /* Alarm Time */                500,                        \
+        /* Alarm Time */                50,                        \
         /* Cycle Time */                10,                         \
         /* Action Function */           &Os_WrapperActivateTask,    \
         /* Object ID */                 0,                          \

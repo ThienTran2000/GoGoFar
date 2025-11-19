@@ -85,11 +85,7 @@ StatusType WaitEvent(EventMaskType Mask) {
     t->TaskState = WAITING;
     Os_RunningTask = INVALID_TASK;
     OS_LOG("WaitEvent: Task %d is waiting a event", t->TaskID);
-    if (Os_ISR_Level > 0) {
-        Os_DeferredSchedule = true;
-    } else {
-        Os_Schedule();
-    }
+    Os_Schedule();
 
     return E_OK;
 }

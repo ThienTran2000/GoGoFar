@@ -135,11 +135,7 @@ StatusType TerminateTask(void)
     }
 
     Os_RunningTask = INVALID_TASK;
-    if (Os_ISR_Level > 0) {
-        Os_DeferredSchedule = true;
-    } else {
-        Os_Schedule();
-    }
+    Os_Schedule();
     return E_OK;
 }
 
@@ -195,11 +191,7 @@ StatusType ChainTask(TaskType TaskID)
         OS_LOG("Task %d queued activation, count=%d", TaskID, tcb->QueuedActivations);
     }
 
-    if (Os_ISR_Level > 0) {
-        Os_DeferredSchedule = true;
-    } else {
-        Os_Schedule();
-    }
+    Os_Schedule();
 
     return E_OK;
 }
