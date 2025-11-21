@@ -44,6 +44,7 @@
 /******************************************************************************/
 
 #include "Ifx_Cfg.h"
+#include "CompilerGnuc.h"
 
 /*this file shall not be modified by the user, IFX_XXXX defines shall be defined in Ifx_Cfg.h */
 #ifndef IFX_STATIC 
@@ -75,69 +76,9 @@
 #define CFG_LONG_SIZE_T (0)
 #endif
 
-#if defined(__DCC__)
-#include "CompilerDcc.h"
-
-#elif defined(__TASKING__)
-#include "CompilerTasking.h"
-
-#elif defined(__HIGHTEC__)
-#include "CompilerGnuc.h"
-
-#elif defined(__GNUC__) && !defined(__HIGHTEC__)
-#include "CompilerGcc.h"
-
-#elif defined(__ghs__)
-#include "CompilerGhs.h"
-
-#elif defined(__MSVC__)
-#include "CompilerMsvc.h"
-
-#else
-
-/** \addtogroup IfxLld_Cpu_Std_Interrupt
- * \{  */
-/** \brief Macro to define Interrupt Service Routine.
- * This macro makes following definitions:\n
- * 1) Define linker section as .intvec_tc<vector number>_<interrupt priority>.\n
- * 2) define compiler specific attribute for the interrupt functions.\n
- * 3) define the Interrupt service routine as Isr function.\n
- * To get details about usage of this macro, refer \ref IfxLld_Cpu_Irq_Usage
- *
- * \param isr Name of the Isr function.
- * \param vectabNum Vector table number. 
- * \param prio Interrupt priority. Refer Usage of Interrupt Macro for more details.
- */
-#define IFX_INTERRUPT(isr, vectabNum, prio)
-
-/** \}  */
-#error "Compiler unsupported"
-#endif
-
-#if defined(__TASKING__)
-#define BEGIN_DATA_SECTION(sec) DATA_SECTION(section farbss #sec)
-#define DATA_SECTION(sec) _Pragma(#sec)
-#define END_DATA_SECTION DATA_SECTION(section farbss align restore) \
-		DATA_SECTION(section farbss)
-#elif defined(__HIGHTEC__)
 #define BEGIN_DATA_SECTION(sec) DATA_SECTION(section #sec aw 4)
 #define DATA_SECTION(sec) _Pragma(#sec)
 #define END_DATA_SECTION DATA_SECTION(section)
-#elif defined(__GNUC__) && !defined(__HIGHTEC__)
-#define BEGIN_DATA_SECTION(sec) DATA_SECTION(section #sec aw 4)
-#define DATA_SECTION(sec) _Pragma(#sec)
-#define END_DATA_SECTION DATA_SECTION(section)
-#elif defined(__DCC__)
-#define BEGIN_DATA_SECTION(sec) DATA_SECTION(section #sec WX)
-#define DATA_SECTION(sec) _Pragma(#sec)
-#define END_DATA_SECTION DATA_SECTION(section DATA X)
-#elif defined(__ghs__)
-#define BEGIN_DATA_SECTION(sec) DATA_SECTION(section #sec WX)
-#define DATA_SECTION(sec) _Pragma(#sec)
-#define END_DATA_SECTION DATA_SECTION(section DATA X)
-#else
-#error "Please specify compiler."
-#endif
 
 /* Functions prototypes                                                       */
 /******************************************************************************/

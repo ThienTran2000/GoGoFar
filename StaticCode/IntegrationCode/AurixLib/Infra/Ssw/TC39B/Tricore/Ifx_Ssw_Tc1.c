@@ -151,61 +151,8 @@ void __Core1_start(void)
          *     stmCountNow = 0x00000002 (before overflow)
          *     diff= stmCountNow - stmCountBegin = 4 as expected.*/
     }
-
-    /*Start remaining cores down the line in a daisy-chain fashion*/
-#if (IFX_CFG_SSW_ENABLE_TRICORE2 != 0)
-    (void)Ifx_Ssw_startCore(&MODULE_CPU2, (unsigned int)__START(2));       /*The status returned by function call is ignored */
-#endif
-#if (IFX_CFG_SSW_ENABLE_TRICORE2 == 0)
-#if (IFX_CFG_SSW_ENABLE_TRICORE3 != 0)
-    (void)Ifx_Ssw_startCore(&MODULE_CPU3, (unsigned int)__START(3));       /*The status returned by function call is ignored */
-#endif
-#if (IFX_CFG_SSW_ENABLE_TRICORE3 == 0)
-#if (IFX_CFG_SSW_ENABLE_TRICORE4 != 0)
-    (void)Ifx_Ssw_startCore(&MODULE_CPU4, (unsigned int)__START(4));       /*The status returned by function call is ignored */
-#endif
-#if (IFX_CFG_SSW_ENABLE_TRICORE4 == 0)
-#if (IFX_CFG_SSW_ENABLE_TRICORE5 != 0)
-    (void)Ifx_Ssw_startCore(&MODULE_CPU5, (unsigned int)__START(5));       /*The status returned by function call is ignored */
-#endif
-#endif /* #if (IFX_CFG_SSW_ENABLE_TRICORE4 == 0) */
-#endif /* #if (IFX_CFG_SSW_ENABLE_TRICORE3 == 0) */
-#endif /* #if (IFX_CFG_SSW_ENABLE_TRICORE2 == 0) */
-
-    /*Initialize CPU Private Global Variables*/
-    //TODO : This implementation is done once all compilers support this
-#if (IFX_CFG_SSW_ENABLE_INDIVIDUAL_C_INIT != 0)
-    /* Hook functions to initialize application specific HW extensions */
-        if(hardware_init_hook)
-        {
-        	hardware_init_hook();
-        }
-
-        /* Hook functions to initialize application specific SW extensions */
-        if(software_init_hook)
-        {
-        	software_init_hook();
-        }
-
-        /* Initialization of C runtime variables and CPP constructors and destructors */
-        (void)Ifx_Ssw_doCppInit();
-#endif
-
-    /*Call main function of Cpu1 */
-#ifdef IFX_CFG_SSW_RETURN_FROM_MAIN
-    {
-        extern int core1_main(void);
-        int status= core1_main();        /* Call main function of CPU2 */
-#if (IFX_CFG_SSW_ENABLE_INDIVIDUAL_C_INIT != 0)
-        Ifx_Ssw_doCppExit(status);
-#else /* (IFX_CFG_SSW_ENABLE_INDIVIDUAL_C_INIT != 0) */
-        (void)status;     /* Added to avoid "Unused parameter warning" */
-#endif /* (IFX_CFG_SSW_ENABLE_INDIVIDUAL_C_INIT != 0) */
-    }
-#else /* IFX_CFG_SSW_RETURN_FROM_MAIN */
     extern void core1_main(void);
     Ifx_Ssw_jumpToFunction(core1_main);  /* Jump to main function of CPU2 */
-#endif /* IFX_CFG_SSW_RETURN_FROM_MAIN */
 
     /* Go into infinite loop, normally the code shall not reach here */
     Ifx_Ssw_infiniteLoop();

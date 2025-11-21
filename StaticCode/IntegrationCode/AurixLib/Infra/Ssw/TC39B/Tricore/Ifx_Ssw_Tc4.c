@@ -152,18 +152,6 @@ void __Core4_start(void)
          *     stmCountNow = 0x00000002 (before overflow)
          *     diff= stmCountNow - stmCountBegin = 4 as expected.*/
     }
-
-    /*Start remaining cores down the line in a daisy-chain fashion*/
-#if (IFX_CFG_SSW_ENABLE_TRICORE5 != 0)
-    (void)Ifx_Ssw_startCore(&MODULE_CPU5, (unsigned int)__START(5));       /*The status returned by function call is ignored */
-#endif
-
-    /*Initialize CPU Private Global Variables*/
-    //TODO : This implementation is done once all compilers support this
-#if (IFX_CFG_SSW_ENABLE_INDIVIDUAL_C_INIT != 0)
-    (void)Ifx_Ssw_C_Init();
-#endif
-
     /*Call main function of Cpu4 */
     Ifx_Ssw_jumpToFunction(core4_main);
 }

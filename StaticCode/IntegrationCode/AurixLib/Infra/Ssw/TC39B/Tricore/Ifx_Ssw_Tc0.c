@@ -122,10 +122,6 @@ IFX_SSW_CORE_LINKER_SYMBOLS(0);
 **                       Defines                                              **
 *******************************************************************************/
 
-#if defined(__TASKING__)
-__asm("\t .extern core0_main");
-#endif
-
 /*Add options to eliminate usage of stack pointers unnecessarily*/
 #if defined(__TASKING__)
 #pragma optimize R
@@ -135,11 +131,101 @@ __asm("\t .extern core0_main");
 #pragma GCC optimize "O2"
 #endif
 
-IFX_SSW_WEAK void hardware_init_hook(void)
-{}
+#define CRT0_CFG_SIZE_PER_CORE 12
+#define NUM_OF_CORE 6
+#define CLEAR_IDX 8
+#define COPY_IDX 9
+extern unsigned int __crt0_config[CRT0_CFG_SIZE_PER_CORE * NUM_OF_CORE];
 
-IFX_SSW_WEAK void software_init_hook(void)
-{}
+IFX_SSW_INLINE void C_Init_AllTables(void)
+{
+    Ifx_Ssw_CTablePtr pBlockDest, pBlockSrc;
+    unsigned int      uiLength, uiCnt;
+    unsigned int     *pTable;
+    unsigned int      tableIdx;
+
+    tableIdx = 0;
+
+    while ( tableIdx < NUM_OF_CORE )
+    {
+        /* clear table */
+        pTable = (unsigned int *)__crt0_config[CLEAR_IDX + CRT0_CFG_SIZE_PER_CORE * tableIdx];
+    
+        while (pTable)
+        {
+            pBlockDest.uiPtr = (unsigned int *)*pTable++;
+            uiLength         = *pTable++;
+    
+            /* we are finished when length == -1 */
+            if (uiLength == 0xFFFFFFFF)
+            {
+                break;
+            }
+    
+            uiCnt = uiLength / 8;
+    
+            while (uiCnt--)
+            {
+                *pBlockDest.ullPtr++ = 0;
+            }
+    
+            if (uiLength & 0x4)
+            {
+                *pBlockDest.uiPtr++ = 0;
+            }
+    
+            if (uiLength & 0x2)
+            {
+                *pBlockDest.usPtr++ = 0;
+            }
+    
+            if (uiLength & 0x1)
+            {
+                *pBlockDest.ucPtr = 0;
+            }
+        }
+    
+        /* copy table */
+        pTable = (unsigned int *)__crt0_config[COPY_IDX + CRT0_CFG_SIZE_PER_CORE * tableIdx];
+    
+        while (pTable)
+        {
+            pBlockSrc.uiPtr  = (unsigned int *)*pTable++;
+            pBlockDest.uiPtr = (unsigned int *)*pTable++;
+            uiLength         = *pTable++;
+    
+            /* we are finished when length == -1 */
+            if (uiLength == 0xFFFFFFFF)
+            {
+                break;
+            }
+    
+            uiCnt = uiLength / 8;
+    
+            while (uiCnt--)
+            {
+                *pBlockDest.ullPtr++ = *pBlockSrc.ullPtr++;
+            }
+    
+            if (uiLength & 0x4)
+            {
+                *pBlockDest.uiPtr++ = *pBlockSrc.uiPtr++;
+            }
+    
+            if (uiLength & 0x2)
+            {
+                *pBlockDest.usPtr++ = *pBlockSrc.usPtr++;
+            }
+    
+            if (uiLength & 0x1)
+            {
+                *pBlockDest.ucPtr = *pBlockSrc.ucPtr;
+            }
+        }
+        tableIdx++;
+    }
+
+}
 
 static void __StartUpSoftware(void)
 {
@@ -230,31 +316,6 @@ static void __StartUpSoftware_Phase5(void)
 
 static void __StartUpSoftware_Phase6(void)
 {
-    /* Start remaining cores as a daisy-chain */
-#if (IFX_CFG_SSW_ENABLE_TRICORE1 != 0)
-    Ifx_Ssw_startCore(&MODULE_CPU1, (unsigned int)__START(1));           /*The status returned by function call is ignored */
-#endif /* #if (IFX_CFG_CPU_CSTART_ENABLE_TRICORE1 != 0)*/
-#if (IFX_CFG_SSW_ENABLE_TRICORE1 == 0)
-#if (IFX_CFG_SSW_ENABLE_TRICORE2 != 0)
-    Ifx_Ssw_startCore(&MODULE_CPU2, (unsigned int)__START(2));           /*The status returned by function call is ignored */
-#endif
-#if (IFX_CFG_SSW_ENABLE_TRICORE2 == 0)
-#if (IFX_CFG_SSW_ENABLE_TRICORE3 != 0)
-    Ifx_Ssw_startCore(&MODULE_CPU3, (unsigned int)__START(3));           /*The status returned by function call is ignored */
-#endif
-#if (IFX_CFG_SSW_ENABLE_TRICORE3 == 0)
-#if (IFX_CFG_SSW_ENABLE_TRICORE4 != 0)
-    Ifx_Ssw_startCore(&MODULE_CPU4, (unsigned int)__START(4));           /*The status returned by function call is ignored */
-#endif
-#if (IFX_CFG_SSW_ENABLE_TRICORE4 == 0)
-#if (IFX_CFG_SSW_ENABLE_TRICORE5 != 0)
-    Ifx_Ssw_startCore(&MODULE_CPU5, (unsigned int)__START(5));           /*The status returned by function call is ignored */
-#endif
-#endif /* #if (IFX_CFG_SSW_ENABLE_TRICORE4 == 0) */
-#endif /* #if (IFX_CFG_SSW_ENABLE_TRICORE3 == 0) */
-#endif /* #if (IFX_CFG_SSW_ENABLE_TRICORE2 == 0) */
-#endif /* #if (IFX_CFG_SSW_ENABLE_TRICORE1 == 0) */
-
     Ifx_Ssw_jumpToFunction(__Core0_start);
 }
 
@@ -309,36 +370,15 @@ static void __Core0_start(void)
     Ifx_Ssw_disableCpuWatchdog(&MODULE_SCU.WDTCPU[0], cpuWdtPassword);
     Ifx_Ssw_disableSafetyWatchdog(safetyWdtPassword);
 
-    /* Hook functions to initialize application specific HW extensions */
-	hardware_init_hook();
-
-	/* Initialization of C runtime variables and CPP constructors and destructors */
-	(void)Ifx_Ssw_doCppInit();
-
-	/* Hook functions to initialize application specific SW extensions */
-	software_init_hook();
+	/* Initialization of C runtime variables */
+	(void)C_Init_AllTables();
 
     Ifx_Ssw_enableSafetyWatchdog(safetyWdtPassword);
 
-#if (IFX_CFG_SSW_ENABLE_TRICORE0 == 0)
-    /* Set the CPU 0 to Idle mode, if it is not needed to be enabled */
-    Ifx_Ssw_setCpu0Idle();
-#endif
-
     Ifx_Ssw_enableCpuWatchdog(&MODULE_SCU.WDTCPU[0], cpuWdtPassword);
 
-    /*Call main function of Cpu0 */
-#ifdef IFX_CFG_SSW_RETURN_FROM_MAIN
-    {
-        extern int core0_main(void);
-        int status= core0_main();          /* Call main function of CPU0 */
-        Ifx_Ssw_doCppExit(status);
-    }
-#else /* IFX_CFG_SSW_RETURN_FROM_MAIN */
     extern void core0_main(void);
     Ifx_Ssw_jumpToFunction(core0_main);    /* Jump to main function of CPU0 */
-#endif /* IFX_CFG_SSW_RETURN_FROM_MAIN */
-
 	/* Go into infinite loop, normally the code shall not reach here */
 	Ifx_Ssw_infiniteLoop();
 }

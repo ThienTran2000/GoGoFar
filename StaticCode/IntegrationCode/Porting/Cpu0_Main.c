@@ -61,7 +61,7 @@ void core0_main(void)
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
     
     IsrInit_STM();
-    StartOS(OSDEFAULTAPPMODE);
+    EcuM_Init();
     /* Shoule never return */
     while(1);
 }

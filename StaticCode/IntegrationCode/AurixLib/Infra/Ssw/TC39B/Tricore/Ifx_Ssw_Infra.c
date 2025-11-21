@@ -195,25 +195,6 @@ float Ifx_Ssw_getStmFrequency(void)
     return sourcefreq / SCU_CCUCON0.B.STMDIV;
 }
 
-void Ifx_Ssw_doCppInit(void)
-{
-    Ifx_Ssw_C_InitInline();
-
-	#ifdef __TASKING__
-		extern void _main(void); /* cpp initialization */
-		_main();
-	#elif defined(__HIGHTEC__) && !defined(__clang__)
-		extern void _init(void); /* cpp initialization */
-		_init();
-	#elif defined(__GNUC__) && !defined(__HIGHTEC__)
-		extern void _init(void); /* cpp initialization */
-		_init();
-	#elif defined(__ghs__)
-		extern void _main(void); /* cpp initialization */
-		_main();
-	#endif
-}
-
 void Ifx_Ssw_doCppExit(int status)
 {
 	#ifdef __TASKING__

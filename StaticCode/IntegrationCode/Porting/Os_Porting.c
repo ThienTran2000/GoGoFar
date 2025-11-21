@@ -3,8 +3,9 @@
 #include "IfxStm.h"
 #include "Ifx_Ssw_Infra.h"
 #include "Os_Counter.h"
+#include "HardwareSpecific.h"
 
-#define STM_ISR_PRIORITY 45
+#define STM_ISR_PRIORITY 1
 #define MODULE_STM0_TICKS_PER_MILISECOND 100000U
 
 typedef struct
@@ -26,6 +27,8 @@ typedef struct
     uint32 D14;
     uint32 D15;
 }upperCSAType;
+
+void isrSTM_0(void);
 
 void Os_SaveContext(Os_TaskContextType* ctx)
 {
@@ -69,7 +72,7 @@ void Os_InitContext(Os_TaskContextType* ctx, uint32* ustack_pu32, uint16 uStackS
         {
             ctx->LCX = nextCxi;
         }
-        preCsa = (uint32)nxtCsa;
+        preCsa = nxtCsa;
         nxtCsa += 16; /* Skip 64bytes CSA */
     }
     /* Init SP and RA for first CSA */
@@ -89,9 +92,11 @@ void Os_ResetContext(Os_TaskContextType* ctx, uint32* ustack_pu32, uint16 uStack
                       ((uint32)((uint32)curCsa & ((uint32)0XFFFFU << 6U)) >> 6U);
     ((upperCSAType*)csa_pu32)->SP = (uint32)(&ustack_pu32[uStackSize_16]);
     ((upperCSAType*)csa_pu32)->RA = (uint32)entryFunctionPtr;
+    (void)callDeep_u16;
 }
 void IsrInit_STM(void)
 {
+    Isr_RegisterIsrHandler(isrSTM_0, 0, STM_ISR_PRIORITY);
     /* Config comparator 0 */
     MODULE_STM0.CMCON.B.MSIZE0 = 31u;                                                                       /* Use 31bit to compare */
     MODULE_STM0.CMCON.B.MSTART0 = 0u;                                                                       /* Start compare from bit 0 */
@@ -107,14 +112,19 @@ void IsrInit_STM(void)
     MODULE_STM0.CMP[IfxStm_Comparator_0].U = MODULE_STM0.TIM0.U + MODULE_STM0_TICKS_PER_MILISECOND;         /* Interrupt in 1ms */
 }
 
-/* Declare ISR, create entry section */
-IFX_INTERRUPT(isrSTM_0, 0, STM_ISR_PRIORITY);                                                                 /* Use vector table 0 at priority 45 */
-
 /* CAT1 ISR */
 void isrSTM_0(void)
 {
     MODULE_STM0.CMP[IfxStm_Comparator_0].U = MODULE_STM0.TIM0.U + MODULE_STM0_TICKS_PER_MILISECOND;
     IncrementCounter(CounterHardwareTimer);
 }
+
+void OsStartSlaveCore(uint8 coreId, uint32 EntryAddr)
+{
+    uint32 cpu;
+    cpu = (uint32)(&MODULE_CPU0) + 0x20000 * coreId;
+    Ifx_Ssw_startCore((Ifx_CPU*)cpu, EntryAddr);
+}
+
 
 

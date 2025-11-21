@@ -42,26 +42,6 @@
 #ifndef IFX_SSW_COMPILERS_H_
 #define IFX_SSW_COMPILERS_H_
 
-/*Macro definition to show GNUC macros with the editor*/
-#if ((!defined(__ghs__)) && (!defined(__DCC__)) && (!defined(__TASKING__)) && (!defined(__GNUC__)))
-#define __HIGHTEC__
-#endif
-
-/*Include files for each compiler*/
-#ifdef __DCC__
-#include "Ifx_Ssw_CompilersDcc.h"
-
-#elif defined(__TASKING__)
-#include "Ifx_Ssw_CompilersTasking.h"
-
-#elif defined(__HIGHTEC__)
 #include "Ifx_Ssw_CompilersGnuc.h"
-
-#elif defined(__GNUC__) && !defined(__HIGHTEC__)
-#include "Ifx_Ssw_CompilersGcc.h"
-
-#elif defined(__ghs__)
-#include "Ifx_Ssw_CompilersGhs.h"
-#endif
 
 #endif /* IFX_SSW_COMPILERS_H_ */
