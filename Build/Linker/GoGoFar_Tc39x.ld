@@ -486,6 +486,7 @@ SECTIONS
 
 	.CPU0.clear_sec :
 	{
+		CPU0_CLEAR_TABLE = .;
 		LONG(ADDR(.CPU0.bss)); LONG(SIZEOF(.CPU0.bss));
 		LONG(ADDR(.sbss)); LONG(SIZEOF(.sbss)); 
 		LONG(ADDR(.bss)); LONG(SIZEOF(.bss));
@@ -495,6 +496,7 @@ SECTIONS
 
 	.CPU0.copy_sec :
 	{
+		CPU0_COPY_TABLE = .;
 		LONG(LOADADDR(.CPU0.ramcode)); LONG(ADDR(.CPU0.ramcode)); LONG(SIZEOF(.CPU0.ramcode));
 		LONG(LOADADDR(.CPU0.data)); LONG(ADDR(.CPU0.data)); LONG(SIZEOF(.CPU0.data));
 		LONG(LOADADDR(.ramcode)); LONG(ADDR(.ramcode)); LONG(SIZEOF(.ramcode));
@@ -507,12 +509,14 @@ SECTIONS
 
 	.CPU1.clear_sec :
 	{
+		CPU1_CLEAR_TABLE = .;
 		LONG(ADDR(.CPU1.bss)); LONG(SIZEOF(.CPU1.bss));
 		LONG(-1); LONG(-1);
 	} > RODATA_CPU1_
 	
 	.CPU1.copy_sec :
 	{
+		CPU1_COPY_TABLE = .;
 		LONG(LOADADDR(.CPU1.ramcode)); LONG(0 + ADDR(.CPU1.ramcode)); LONG(SIZEOF(.CPU1.ramcode));
 		LONG(LOADADDR(.CPU1.data)); LONG(ADDR(.CPU1.data)); LONG(SIZEOF(.CPU1.data));
 		LONG(-1); LONG(-1); LONG(-1);
@@ -522,12 +526,14 @@ SECTIONS
 
 	.CPU2.clear_sec :
 	{
+		CPU2_CLEAR_TABLE = .;
 		LONG(ADDR(.CPU2.bss)); LONG(SIZEOF(.CPU2.bss));
 		LONG(-1); LONG(-1);
 	} > RODATA_CPU2_
 	
 	.CPU2.copy_sec :
 	{
+		CPU2_COPY_TABLE = .;
 		LONG(LOADADDR(.CPU2.ramcode)); LONG(0 + ADDR(.CPU2.ramcode)); LONG(SIZEOF(.CPU2.ramcode));
 		LONG(LOADADDR(.CPU2.data)); LONG(0 + ADDR(.CPU2.data)); LONG(SIZEOF(.CPU2.data));
 		LONG(-1); LONG(-1); LONG(-1);
@@ -537,12 +543,14 @@ SECTIONS
 
 	.CPU3.clear_sec :
 	{
+		CPU3_CLEAR_TABLE = .;
 		LONG(ADDR(.CPU3.bss)); LONG(SIZEOF(.CPU3.bss));
 		LONG(-1); LONG(-1);
 	} > RODATA_CPU3_
 	
 	.CPU3.copy_sec :
 	{
+		CPU3_COPY_TABLE = .;
 		LONG(LOADADDR(.CPU3.ramcode)); LONG(0 + ADDR(.CPU3.ramcode)); LONG(SIZEOF(.CPU3.ramcode));
 		LONG(LOADADDR(.CPU3.data)); LONG(0 + ADDR(.CPU3.data)); LONG(SIZEOF(.CPU3.data));
 		LONG(-1); LONG(-1); LONG(-1);
@@ -552,12 +560,14 @@ SECTIONS
 
 	.CPU4.clear_sec :
 	{
+		CPU4_CLEAR_TABLE = .;
 		LONG(ADDR(.CPU4.bss)); LONG(SIZEOF(.CPU4.bss));
 		LONG(-1); LONG(-1);
 	} > RODATA_CPU4_
 	
 	.CPU4.copy_sec :
 	{
+		CPU4_COPY_TABLE = .;
 		LONG(LOADADDR(.CPU4.ramcode)); LONG(0 + ADDR(.CPU4.ramcode)); LONG(SIZEOF(.CPU4.ramcode));
 		LONG(LOADADDR(.CPU4.data)); LONG(0 + ADDR(.CPU4.data)); LONG(SIZEOF(.CPU4.data));
 		LONG(-1); LONG(-1); LONG(-1);
@@ -567,12 +577,14 @@ SECTIONS
 
 	.CPU5.clear_sec :
 	{
+		CPU5_CLEAR_TABLE = .;
 		LONG(ADDR(.CPU5.bss)); LONG(SIZEOF(.CPU5.bss));
 		LONG(-1); LONG(-1);
 	} > RODATA_CPU5_
 	
 	.CPU5.copy_sec :
 	{
+		CPU5_COPY_TABLE = .;
 		LONG(LOADADDR(.CPU5.ramcode)); LONG(0 + ADDR(.CPU5.ramcode)); LONG(SIZEOF(.CPU5.ramcode));
 		LONG(LOADADDR(.CPU5.data)); LONG(0 + ADDR(.CPU5.data)); LONG(SIZEOF(.CPU5.data));
 		LONG(-1); LONG(-1); LONG(-1);
@@ -597,120 +609,6 @@ __A9_MEM = 0;
 /* Expected HEAP SYMBOLS */
 __HEAP     = ADDR(.heap);
 __HEAP_END = ADDR(.heap) + SIZEOF(.heap);
-
-
-/* ================================================================================================
- * CRT0 CONFIG STRUCTURE
- * Initialization structure for uC Cores used in crt0 startup code
- * Each core has itw one table entry.
- * ==============================================================================================*/
-
-SECTIONS
-{
-	.crt0_config : ALIGN(4)
-	{
-		PROVIDE(__crt0_config = .);        /* base of the crt0 config table */
-		
-		/* Core[0] */
-		LONG(ADDR(.CPU0.ustack));          /* USTACK address */ 
-		LONG(SIZEOF(.CPU0.ustack));        /* USTACK size */
-		LONG(ADDR(.CPU0.csa));             /* CSA address */ 
-		LONG(SIZEOF(.CPU0.csa));           /* CSA size */
-		LONG(__A0_MEM);                /* SDATA address */
-		LONG(__A1_MEM);               /* SDATA2 address */
-		LONG(0);                           /* SDATA3 address */
-		LONG(0);                           /* SDATA4 address */
-		LONG(ADDR(.CPU0.clear_sec));       /* CLEAR table */
-		LONG(ADDR(.CPU0.copy_sec));        /* COPY table */
-		LONG(ADDR(.CPU0.istack));          /* ISTACK address */ 
-		LONG(SIZEOF(.CPU0.istack));        /* ISTACK size */
-		
-		/* Core[1] */
-		LONG(ADDR(.CPU1.ustack));           /* STACK address */ 
-		LONG(SIZEOF(.CPU1.ustack));         /* STACK size */
-		LONG(ADDR(.CPU1.csa));             /* CSA address */ 
-		LONG(SIZEOF(.CPU1.csa));           /* CSA size */
-		LONG(__A0_MEM);                /* SDATA address */
-		LONG(__A1_MEM);               /* SDATA2 address */
-		LONG(0);                           /* SDATA3 address */
-		LONG(0);                           /* SDATA4 address */
-		LONG(ADDR(.CPU1.clear_sec) );      /* CLEAR table */
-		LONG(ADDR(.CPU1.copy_sec));        /* COPY table */
-		LONG(ADDR(.CPU1.istack));          /* ISTACK address */ 
-		LONG(SIZEOF(.CPU1.istack));        /* ISTACK size */
-		
-		/* Core[2] */
-		LONG(ADDR(.CPU2.ustack));           /* STACK address */ 
-		LONG(SIZEOF(.CPU2.ustack));         /* STACK size */
-		LONG(ADDR(.CPU2.csa));             /* CSA address */ 
-		LONG(SIZEOF(.CPU2.csa));           /* CSA size */
-		LONG(__A0_MEM);                /* SDATA address */
-		LONG(__A1_MEM);               /* SDATA2 address */
-		LONG(0);                           /* SDATA3 address */
-		LONG(0);                           /* SDATA4 address */
-		LONG(ADDR(.CPU2.clear_sec));       /* CLEAR table */
-		LONG(ADDR(.CPU2.copy_sec));        /* COPY table */
-		LONG(ADDR(.CPU2.istack));          /* ISTACK address */ 
-		LONG(SIZEOF(.CPU2.istack));        /* ISTACK size */
-
-		/* Core[3] */
-		LONG(ADDR(.CPU3.ustack));           /* STACK address */ 
-		LONG(SIZEOF(.CPU3.ustack));         /* STACK size */
-		LONG(ADDR(.CPU3.csa));             /* CSA address */ 
-		LONG(SIZEOF(.CPU3.csa));           /* CSA size */
-		LONG(__A0_MEM);                /* SDATA address */
-		LONG(__A1_MEM);               /* SDATA3 address */
-		LONG(0);                           /* SDATA3 address */
-		LONG(0);                           /* SDATA4 address */
-		LONG(ADDR(.CPU3.clear_sec));       /* CLEAR table */
-		LONG(ADDR(.CPU3.copy_sec));        /* COPY table */
-		LONG(ADDR(.CPU3.istack));          /* ISTACK address */ 
-		LONG(SIZEOF(.CPU3.istack));        /* ISTACK size */
-
-		/* Core[4] */
-		LONG(ADDR(.CPU4.ustack));           /* STACK address */ 
-		LONG(SIZEOF(.CPU4.ustack));         /* STACK size */
-		LONG(ADDR(.CPU4.csa));             /* CSA address */ 
-		LONG(SIZEOF(.CPU4.csa));           /* CSA size */
-		LONG(__A0_MEM);                /* SDATA address */
-		LONG(__A1_MEM);               /* SDATA3 address */
-		LONG(0);                           /* SDATA3 address */
-		LONG(0);                           /* SDATA4 address */
-		LONG(ADDR(.CPU4.clear_sec));       /* CLEAR table */
-		LONG(ADDR(.CPU4.copy_sec));        /* COPY table */
-		LONG(ADDR(.CPU4.istack));          /* ISTACK address */ 
-		LONG(SIZEOF(.CPU4.istack));        /* ISTACK size */
-
-		/* Dummy entry due to CoreId index gap in TC39x */
-		LONG(0);                           /* STACK address */ 
-		LONG(0);                           /* STACK size */
-		LONG(0);                           /* CSA address */ 
-		LONG(0);                           /* CSA size */
-		LONG(0);                           /* SDATA address */
-		LONG(0);                           /* SDATA3 address */
-		LONG(0);                           /* SDATA3 address */
-		LONG(0);                           /* SDATA4 address */
-		LONG(0);                           /* CLEAR table */
-		LONG(0);                           /* COPY table */
-		LONG(0);          					/* ISTACK address */ 
-		LONG(0);        					/* ISTACK size */
-
-		/* Core[5] */
-		LONG(ADDR(.CPU5.ustack));           /* STACK address */ 
-		LONG(SIZEOF(.CPU5.ustack));         /* STACK size */
-		LONG(ADDR(.CPU5.csa));             /* CSA address */ 
-		LONG(SIZEOF(.CPU5.csa));           /* CSA size */
-		LONG(__A0_MEM);                /* SDATA address */
-		LONG(__A1_MEM);               /* SDATA3 address */
-		LONG(0);                           /* SDATA3 address */
-		LONG(0);                           /* SDATA4 address */
-		LONG(ADDR(.CPU5.clear_sec));       /* CLEAR table */
-		LONG(ADDR(.CPU5.copy_sec));        /* COPY table */
-		LONG(ADDR(.CPU5.istack));          /* ISTACK address */ 
-		LONG(SIZEOF(.CPU5.istack));        /* ISTACK size */
-
-	} > RODATA 
-}
 
 
 /* ================================================================================================

@@ -135,13 +135,29 @@ IFX_SSW_CORE_LINKER_SYMBOLS(0);
 #define NUM_OF_CORE 6
 #define CLEAR_IDX 8
 #define COPY_IDX 9
-extern unsigned int __crt0_config[CRT0_CFG_SIZE_PER_CORE * NUM_OF_CORE];
+extern unsigned int CPU0_COPY_TABLE[];
+extern unsigned int CPU1_COPY_TABLE[];
+extern unsigned int CPU2_COPY_TABLE[];
+extern unsigned int CPU3_COPY_TABLE[];
+extern unsigned int CPU4_COPY_TABLE[];
+extern unsigned int CPU5_COPY_TABLE[];
+
+extern unsigned int CPU0_CLEAR_TABLE[];
+extern unsigned int CPU1_CLEAR_TABLE[];
+extern unsigned int CPU2_CLEAR_TABLE[];
+extern unsigned int CPU3_CLEAR_TABLE[];
+extern unsigned int CPU4_CLEAR_TABLE[];
+extern unsigned int CPU5_CLEAR_TABLE[];
+
+#define CLEAR_TABLE(i) (unsigned int *)CPU##i##_CLEAR_TABLE
+#define COPY_TABLE(i)  (unsigned int *)CPU##i##_COPY_TABLE
 
 IFX_SSW_INLINE void C_Init_AllTables(void)
 {
     Ifx_Ssw_CTablePtr pBlockDest, pBlockSrc;
     unsigned int      uiLength, uiCnt;
-    unsigned int     *pTable;
+    unsigned int     *pClrTable;
+    unsigned int     *pCpyTable;
     unsigned int      tableIdx;
 
     tableIdx = 0;
@@ -149,12 +165,41 @@ IFX_SSW_INLINE void C_Init_AllTables(void)
     while ( tableIdx < NUM_OF_CORE )
     {
         /* clear table */
-        pTable = (unsigned int *)__crt0_config[CLEAR_IDX + CRT0_CFG_SIZE_PER_CORE * tableIdx];
-    
-        while (pTable)
+        switch (tableIdx)
         {
-            pBlockDest.uiPtr = (unsigned int *)*pTable++;
-            uiLength         = *pTable++;
+        case 0:
+            pClrTable = CLEAR_TABLE(0);
+            pCpyTable = COPY_TABLE(0);
+            break;
+        case 1:
+            pClrTable = CLEAR_TABLE(1);
+            pCpyTable = COPY_TABLE(1);
+            break;
+        case 2:
+            pClrTable = CLEAR_TABLE(2);
+            pCpyTable = COPY_TABLE(2);
+            break;
+        case 3:
+            pClrTable = CLEAR_TABLE(3);
+            pCpyTable = COPY_TABLE(3);
+            break;
+        case 4:
+            pClrTable = CLEAR_TABLE(4);
+            pCpyTable = COPY_TABLE(4);
+            break;
+        case 5:
+            pClrTable = CLEAR_TABLE(5);
+            pCpyTable = COPY_TABLE(5);
+            break;
+        
+        default:
+            break;
+        }
+    
+        while (pClrTable)
+        {
+            pBlockDest.uiPtr = (unsigned int *)*pClrTable++;
+            uiLength         = *pClrTable++;
     
             /* we are finished when length == -1 */
             if (uiLength == 0xFFFFFFFF)
@@ -185,14 +230,11 @@ IFX_SSW_INLINE void C_Init_AllTables(void)
             }
         }
     
-        /* copy table */
-        pTable = (unsigned int *)__crt0_config[COPY_IDX + CRT0_CFG_SIZE_PER_CORE * tableIdx];
-    
-        while (pTable)
+        while (pCpyTable)
         {
-            pBlockSrc.uiPtr  = (unsigned int *)*pTable++;
-            pBlockDest.uiPtr = (unsigned int *)*pTable++;
-            uiLength         = *pTable++;
+            pBlockSrc.uiPtr  = (unsigned int *)*pCpyTable++;
+            pBlockDest.uiPtr = (unsigned int *)*pCpyTable++;
+            uiLength         = *pCpyTable++;
     
             /* we are finished when length == -1 */
             if (uiLength == 0xFFFFFFFF)
