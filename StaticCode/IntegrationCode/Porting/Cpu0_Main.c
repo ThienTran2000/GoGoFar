@@ -43,6 +43,7 @@
 #include "IfxScuWdt.h"
 #include "Os.h"
 #include "Os_Porting.h"
+#include "EcuM.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 

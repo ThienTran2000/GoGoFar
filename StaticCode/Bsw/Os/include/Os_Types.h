@@ -75,7 +75,7 @@ typedef struct {
     EventMaskType           EventMask;
     EventMaskType           WaitMask;
     Os_EntryType            Entry;
-    uint16                  StackSize;
+    StackType               Stack;
     TaskType                TaskID;
     TaskStateType           TaskState;
     uint8                   CurrentPriority;

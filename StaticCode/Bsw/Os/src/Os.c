@@ -11,6 +11,7 @@ StatusType GetActiveApplicationMode(AppModeType *Mode) {
 
 StatusType StartOS(AppModeType mode)
 {
+    uint16 idx;
     OS_LOG("StartOS: AppMode=%d", mode);
 
     Os_Running = TRUE;
@@ -26,7 +27,10 @@ StatusType StartOS(AppModeType mode)
 #ifdef USESTARTUPHOOK
     STARTUP_HOOK_FUNCTION();
 #endif
-
+    for ( idx = 0u; idx < NUMBER_OF_TASKS; idx++ )
+    {
+        Os_InitContext(&(Os_TaskTable[idx].Context), &(Os_TaskTable->Stack), Os_TaskTable->Entry);
+    }
     Schedule();
 
     // Should never reach here

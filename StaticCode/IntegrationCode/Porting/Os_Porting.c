@@ -44,15 +44,15 @@ void Os_RestoreContext(Os_TaskContextType* ctx)
     Ifx_Ssw_MTCR(CPU_PCXI, ctx->PCXI);
 }
 
-void Os_InitContext(Os_TaskContextType* ctx, uint32* ustack_pu32, uint16 uStackSize_16, uint32* csa_pu32, uint16 callDeep_u16, void* entryFunctionPtr)
+void Os_InitContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFunctionPtr)
 {
     uint16 index_u16;
     uint32 nextCxi;
     uint32* nxtCsa;
     uint32* preCsa;
     /* Init CSA chain */
-    nxtCsa = csa_pu32;
-    for ( index_u16 = 0; index_u16 < callDeep_u16; index_u16++ )
+    nxtCsa = stack_pst->csa_pu8;
+    for ( index_u16 = 0; index_u16 < stack_pst->csaSize_u32; index_u16++ )
     {
         nextCxi = ((uint32)((uint32)nxtCsa & ((uint32)0XFU << 28U)) >> 12U) | \
                       ((uint32)((uint32)nxtCsa & ((uint32)0XFFFFU << 6U)) >> 6U);
@@ -68,7 +68,7 @@ void Os_InitContext(Os_TaskContextType* ctx, uint32* ustack_pu32, uint16 uStackS
             }
             *preCsa = nextCxi;
         }
-        if ( (callDeep_u16 - 3) == index_u16 )
+        if ( (stack_pst->csaSize_u32 - 3) == index_u16 )
         {
             ctx->LCX = nextCxi;
         }
@@ -77,22 +77,21 @@ void Os_InitContext(Os_TaskContextType* ctx, uint32* ustack_pu32, uint16 uStackS
     }
     /* Init SP and RA for first CSA */
     /* Growdown type */
-    ((upperCSAType*)csa_pu32)->SP = (uint32)(&ustack_pu32[uStackSize_16]);
-    ((upperCSAType*)csa_pu32)->RA = (uint32)entryFunctionPtr;
+    ((upperCSAType*)stack_pst->csa_pu8)->SP = (uint32)(&stack_pst->ustack_pu8[stack_pst->ustackSize_u32]);
+    ((upperCSAType*)stack_pst->csa_pu8)->RA = (uint32)entryFunctionPtr;
 }
 
-void Os_ResetContext(Os_TaskContextType* ctx, uint32* ustack_pu32, uint16 uStackSize_16, uint32* csa_pu32, uint16 callDeep_u16, void* entryFunctionPtr)
+void Os_ResetContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFunctionPtr)
 {
     uint32* curCsa;
-    curCsa = csa_pu32;
+    curCsa = stack_pst->csa_pu8;
     ctx->PCXI = ((uint32)((uint32)curCsa & ((uint32)0XFU << 28U)) >> 12U) | \
                       ((uint32)((uint32)curCsa & ((uint32)0XFFFFU << 6U)) >> 6U);
     curCsa += 16u;
     ctx->FCX = ((uint32)((uint32)curCsa & ((uint32)0XFU << 28U)) >> 12U) | \
                       ((uint32)((uint32)curCsa & ((uint32)0XFFFFU << 6U)) >> 6U);
-    ((upperCSAType*)csa_pu32)->SP = (uint32)(&ustack_pu32[uStackSize_16]);
-    ((upperCSAType*)csa_pu32)->RA = (uint32)entryFunctionPtr;
-    (void)callDeep_u16;
+    ((upperCSAType*)stack_pst->csa_pu8)->SP = (uint32)(&stack_pst->ustack_pu8[stack_pst->ustackSize_u32]);
+    ((upperCSAType*)stack_pst->csa_pu8)->RA = (uint32)entryFunctionPtr;
 }
 void IsrInit_STM(void)
 {

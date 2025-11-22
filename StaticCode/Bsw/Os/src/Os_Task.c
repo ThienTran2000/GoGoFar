@@ -31,9 +31,12 @@ static void Os_Dispatch(TaskType next)
             OS_LOG("Task %d moved to READY", current);
         }
     }
-
     Os_RunningTask = next;
     ReadyQueueRemove(next);
+    if ( SUSPENDED == Os_TaskTable[next].TaskState )
+    {
+        Os_ResetContext(&(Os_TaskTable[next].Context), &(Os_TaskTable[next].Stack), Os_TaskTable[next].Entry);
+    }
     Os_TaskTable[next].TaskState = RUNNING;
 
     OS_LOG("Task %d is now RUNNING", next);
