@@ -9,23 +9,24 @@ TaskType Os_AutoStartTasks[NUMBER_OF_AUTOSTART_TASKS] = {TASK_AUTOSTART};
 TaskType Os_RunningTask = INVALID_TASK;
 volatile int Os_ISR_Level = 0;
 volatile bool Os_DeferredSchedule = false;
+Os_TaskContextType Os_IdleTaskContext = {0, 0};
 
-static void Os_SaveContext(Os_TaskContextType* ctx)
+void Os_CreateContext(Os_TaskContextType* ctx)
+{
+    OS_LOG("Create context");
+    ctx->Os_StackPointer = 1;
+    ctx->Os_MSPStackPointer = 1;
+}
+
+void Os_SaveContext(Os_TaskContextType* ctx)
 {
     ctx->Os_StackPointer = 0;
     ctx->Os_MSPStackPointer = 0;
 }
 
-static void Os_RestoreContext(Os_TaskContextType* ctx)
+void Os_RestoreContext(Os_TaskContextType* ctx)
 {
     Os_TaskTable[Os_RunningTask].Entry();
-}
-
-void Os_IdleTask(void)
-{
-    for(;;)
-    {
-    }
 }
 
 static void Os_Dispatch(TaskType next)
@@ -39,6 +40,9 @@ static void Os_Dispatch(TaskType next)
             ReadyQueuePush(current);
             OS_LOG("Task %d moved to READY", current);
         }
+    } else {
+        /* Should save context of idle task before switch to other task */
+        Os_SaveContext(&Os_IdleTaskContext);
     }
 
     Os_RunningTask = next;
@@ -73,7 +77,7 @@ void Os_Schedule(void)
     } else {
         if (Os_RunningTask == INVALID_TASK) {
             OS_LOG("No task is currently running");
-            Os_IdleTask();
+            Os_RestoreContext(&Os_IdleTaskContext);
         }
     }
 }
@@ -94,6 +98,8 @@ StatusType ActivateTask(TaskType TaskID)
         tcb->QueuedActivations = 1;
         ReadyQueuePush(TaskID);
         OS_LOG("Task %d activated from SUSPENDED", TaskID);
+        /* Os should create context of task if change state from SUSPENDED to READY */
+        Os_CreateContext(&(tcb->Context));
     } else {
         if (tcb->QueuedActivations >= tcb->MaxActivations) {
             OS_LOG("Task %d activation limit reached", TaskID);
@@ -239,5 +245,9 @@ void Os_ActivateAutoStartTasks(void)
         tcb->QueuedActivations = 1;
         ReadyQueuePush(TaskID);
         OS_LOG("Auto start Task: TaskID=%d", TaskID);
+        Os_CreateContext(&(tcb->Context));
+        /* Os should create context of task if change state from SUSPENDED to READY */
     }
+    /* Create context of Idle Task here */
+    Os_CreateContext(&Os_IdleTaskContext);
 }

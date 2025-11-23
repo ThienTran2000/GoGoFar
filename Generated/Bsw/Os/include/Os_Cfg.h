@@ -40,8 +40,8 @@
     { /* AlarmTimingTask10ms */                                     \
         /* Alarm ID */                  0,                          \
         /* Counter ID */                0,                          \
-        /* Alarm Time */                50,                        \
-        /* Cycle Time */                10,                         \
+        /* Alarm Time */                50,                         \
+        /* Cycle Time */                50,                         \
         /* Action Function */           &Os_WrapperActivateTask,    \
         /* Object ID */                 0,                          \
         /* Task ID */                   0,                          \
@@ -61,7 +61,7 @@
         /* Alarm ID */                  2,                          \
         /* Counter ID */                0,                          \
         /* Alarm Time */                100,                        \
-        /* Cycle Time */                10,                        \
+        /* Cycle Time */                10,                         \
         /* Action Function */           &Os_WrapperCallout,         \
         /* Object ID */                 0,                          \
         /* Task ID */                   0,                          \

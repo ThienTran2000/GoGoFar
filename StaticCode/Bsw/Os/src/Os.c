@@ -2,6 +2,7 @@
 
 extern void ReadyQueueInit(ReadyQueueType* q);
 extern ReadyQueueType ReadyQueue[MAX_PRIORITY];
+extern Os_TaskContextType Os_IdleTaskContext;
 bool Os_Running = false;
 
 StatusType GetActiveApplicationMode(AppModeType *Mode) {
@@ -50,5 +51,5 @@ void ShutdownOS(StatusType Error)
 
     OS_LOG("ShutdownOS: OS stopped. Entering idle state.");
 
-    Os_IdleTask();
+    Os_RestoreContext(&Os_IdleTaskContext);
 }
