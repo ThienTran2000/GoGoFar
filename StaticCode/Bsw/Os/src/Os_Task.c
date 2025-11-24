@@ -2,7 +2,6 @@
 #include "Os_Queue.h"
 #include "Os_Types.h"
 #include "Os_Cfg.h"
-#include <stdio.h>
 
 Os_TaskControlBlockType Os_TaskTable[NUMBER_OF_TASKS] = {TASK_INIT};
 TaskType Os_AutoStartTasks[NUMBER_OF_AUTOSTART_TASKS] = {TASK_AUTOSTART};
@@ -26,7 +25,7 @@ void Os_SaveContext(Os_TaskContextType* ctx)
 
 void Os_RestoreContext(Os_TaskContextType* ctx)
 {
-    Os_TaskTable[Os_RunningTask].Entry();
+
 }
 
 static void Os_Dispatch(TaskType next)

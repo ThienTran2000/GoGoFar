@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stg format="2.0">
+	<OriginalWsp type="string">tricore_Default.wsx</OriginalWsp>
+	<BackupWspFlag type="flag">1</BackupWspFlag>
+	<ProdInfo type="bin" size="52">vQTv/gAAAQAKAAMA4SADAAEA5QcAAAAAPwAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAAAAAA==</ProdInfo>
+	<ProdInfoString type="string">2021</ProdInfoString>
+	<CreationDate type="string">24.11.2025 22:35:32:000</CreationDate>
+	<LastWriteDate type="string">24.11.2025 22:35:32:000</LastWriteDate>
+</stg>

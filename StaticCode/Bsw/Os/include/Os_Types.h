@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include "Os_Cfg.h"
 
-#define LOG_ENABLE
-
 #ifdef LOG_ENABLE
 #include <stdio.h>
 #define OS_LOG(fmt, ...) printf("[LOG] " fmt "\n", ##__VA_ARGS__)
