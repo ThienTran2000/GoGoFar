@@ -5,7 +5,7 @@
 
 ReadyQueueType ReadyQueue[MAX_PRIORITY];
 
-bool ReadyQueueEmpty(ReadyQueueType* q) {
+boolean ReadyQueueEmpty(ReadyQueueType* q) {
     return q->Head == q->Tail;
 }
 
@@ -28,12 +28,12 @@ TaskType ReadyQueueFront(ReadyQueueType* q) {
 
 void ReadyQueueRemove(TaskType t) {
     ReadyQueueType* q = &ReadyQueue[Os_TaskTable[t].QueueIdx];
-    uint8_t i = q->Head;
+    uint8 i = q->Head;
     while (i != q->Tail) {
         if (q->Queue[i] == t) {
-            uint8_t j = i;
+            uint8 j = i;
             while (j != q->Tail) {
-                uint8_t next = (j + 1) % QUEUE_SIZE;
+                uint8 next = (j + 1) % QUEUE_SIZE;
                 q->Queue[j] = q->Queue[next];
                 j = next;
             }
@@ -50,7 +50,7 @@ void ReadyQueueRemove(TaskType t) {
 
 TaskType GetHighestReady(void) {
     TaskType TaskID;
-    for (uint8_t prio = 0; prio < MAX_PRIORITY; prio++) {
+    for (uint8 prio = 0; prio < MAX_PRIORITY; prio++) {
         if (!ReadyQueueEmpty(&ReadyQueue[prio])) {
             TaskID = ReadyQueueFront(&ReadyQueue[prio]);
             return TaskID;

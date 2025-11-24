@@ -6,9 +6,9 @@
 StatusType SetRelAlarm(AlarmType AlarmID, TickType Increment, TickType Cycle);
 StatusType SetAbsAlarm(AlarmType AlarmID, TickType Start, TickType Cycle);
 StatusType CancelAlarm(AlarmType AlarmID);
-StatusType GetCounterValue(CounterType CounterID, TickType *Value);
-StatusType GetCounterMax(CounterType CounterID, TickType *Value);
+
 void Os_ActivateAutoStartAlarms(void);
-void CounterTickHandler(CounterType CounterID);
+
+extern Os_AlarmType Alarms[NUMBER_OF_ALARMS];
 
 #endif /* OS_ALARM_H */

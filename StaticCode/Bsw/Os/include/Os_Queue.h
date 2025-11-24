@@ -6,7 +6,7 @@
 
 extern Os_TaskControlBlockType Os_TaskTable[NUMBER_OF_TASKS];
 
-bool ReadyQueueEmpty(ReadyQueueType* q);
+boolean ReadyQueueEmpty(ReadyQueueType* q);
 void ReadyQueuePush(TaskType t);
 TaskType ReadyQueueFront(ReadyQueueType* q);
 void ReadyQueueRemove(TaskType t);

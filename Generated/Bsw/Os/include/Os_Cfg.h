@@ -1,10 +1,11 @@
 #ifndef OS_CFG_H
 #define OS_CFG_H
-#include "Os_Types.h"
+
+#include "Platform_Types.h"
 
 #define MAX_PRIORITY                    2
-#define QUEUE_SIZE                      2
 #define NO_OWNER                        NUMBER_OF_TASKS
+#define QUEUE_SIZE                      2
 
 /*=================================================================*/
 /*                      Hook Function Configuration                */
@@ -45,7 +46,7 @@
         /* Action Function */           &Os_WrapperActivateTask,    \
         /* Object ID */                 0,                          \
         /* Task ID */                   0,                          \
-        /* Active */                    false                       \
+        /* Active */                    FALSE                       \
     },                                                              \
     { /* AlarmEvent20ms */                                          \
         /* Alarm ID */                  1,                          \
@@ -55,7 +56,7 @@
         /* Action Function */           &Os_WrapperSetEvent,        \
         /* Object ID */                 1,                          \
         /* Task ID */                   2,                          \
-        /* Active */                    false                       \
+        /* Active */                    FALSE                       \
     },                                                              \
     { /* AlarmCallout100ms */                                       \
         /* Alarm ID */                  2,                          \
@@ -65,7 +66,7 @@
         /* Action Function */           &Os_WrapperCallout,         \
         /* Object ID */                 0,                          \
         /* Task ID */                   0,                          \
-        /* Active */                    false                       \
+        /* Active */                    FALSE                       \
     }
 
 #define ALARM_AUTOSTART                                             \
@@ -108,6 +109,27 @@
 #define Os_TaskInit                     0
 #define Os_TaskTiming10ms               1
 #define Os_TaskEvent20ms                2
+
+/************This config should port into generattion tool********************/
+#define OS_USTACK_TASKINIT_SIZE             524
+#define OS_USTACK_TASKTIMING10MS_SIZE       524
+#define OS_USTACK_TASKEVENT20MS_SIZE        524
+
+#define OS_CSA_TASKINIT_CALLDEEPTH          20
+#define OS_CSA_TASKTIMING10MS_CALLDEEPTH    20
+#define OS_CSA_TASKEVENT20MS_CALLDEEPTH     20
+
+extern uint32 Os_ustack_taskinit_buf[OS_USTACK_TASKINIT_SIZE / 32];
+extern uint32 Os_ustack_tasktiming10ms_buf[OS_USTACK_TASKTIMING10MS_SIZE / 32];
+extern uint32 Os_ustack_taskevent20ms_buf[OS_USTACK_TASKEVENT20MS_SIZE / 32];
+
+extern uint64 Os_csa_taskinit_buf[OS_CSA_TASKINIT_CALLDEEPTH / 64];
+extern uint64 Os_csa_tasktiming10ms_buf[OS_CSA_TASKTIMING10MS_CALLDEEPTH / 64];
+extern uint64 Os_csa_taskevent20ms_buf[OS_CSA_TASKEVENT20MS_CALLDEEPTH / 64];
+
+/*****************************************************************************/
+
+
 extern void Os_TaskInit_Entry(void);
 extern void Os_TaskTiming10ms_Entry(void);
 extern void Os_TaskEvent20ms_Entry(void);
@@ -117,54 +139,69 @@ extern void Os_TaskEvent20ms_Entry(void);
         Os_TaskInit,                                                \
         Os_TaskEvent20ms                                            \
 
-#define TASK_INIT                                                   \
-    { /* Os_TaskInit */                                             \
-        /* Context */                   {0, 0},                     \
-        /* Event Mask */                0,                          \
-        /* Wait Mask */                 0,                          \
-        /* Entry */                     &Os_TaskInit_Entry,         \
-        /* Stack Size */                1024,                       \
-        /* Task ID */                   0,                          \
-        /* Task State */                SUSPENDED,                  \
-        /* Current Priority */          100,                        \
-        /* Base Priority */             100,                        \
-        /* Max Activations */           1,                          \
-        /* Queued Activations */        0,                          \
-        /* Task Type */                 TASK_BASIC,                 \
-        /* Preemption */                NON_PREEMPTIVE,             \
-        /* Queue Index */               0                           \
-    },                                                              \
-    { /* Os_TaskTiming10ms */                                       \
-        /* Context */                   {0, 0},                     \
-        /* Event Mask */                0,                          \
-        /* Wait Mask */                 0,                          \
-        /* Entry */                     &Os_TaskTiming10ms_Entry,   \
-        /* Stack Size */                1024,                       \
-        /* Task ID */                   1,                          \
-        /* Task State */                SUSPENDED,                  \
-        /* Current Priority */          50,                         \
-        /* Base Priority */             50,                         \
-        /* Max Activations */           1,                          \
-        /* Queued Activations */        0,                          \
-        /* Task Type */                 TASK_BASIC,                 \
-        /* Preemption */                PREEMPTIVE,                 \
-        /* Queue Index */               1                           \
-    },                                                              \
-    { /* Os_TaskEvent20ms */                                        \
-        /* Context */                   {0, 0},                     \
-        /* Event Mask */                0,                          \
-        /* Wait Mask */                 0,                          \
-        /* Entry */                     &Os_TaskEvent20ms_Entry,    \
-        /* Stack Size */                512,                        \
-        /* Task ID */                   2,                          \
-        /* Task State */                SUSPENDED,                  \
-        /* Current Priority */          50,                         \
-        /* Base Priority */             50,                         \
-        /* Max Activations */           1,                          \
-        /* Queued Activations */        0,                          \
-        /* Task Type */                 TASK_EXTENDED,              \
-        /* Preemption */                PREEMPTIVE,                 \
-        /* Queue Index */               1                           \
+#define TASK_INIT                                                               \
+    { /* Os_TaskInit */                                                         \
+        /* Context */                   {0, 0, 0},                              \
+        /* Event Mask */                0,                                      \
+        /* Wait Mask */                 0,                                      \
+        /* Entry */                     Os_TaskInit_Entry,                     \
+        /* Stack */                                                             \
+        {                               &Os_ustack_taskinit_buf[0u],                 \
+                                        OS_USTACK_TASKINIT_SIZE,                \
+                                        &Os_csa_taskinit_buf[0u],                    \
+                                        OS_CSA_TASKINIT_CALLDEEPTH              \
+        },                                                                      \
+        /* Task ID */                   0,                                      \
+        /* Task State */                SUSPENDED,                              \
+        /* Current Priority */          100,                                    \
+        /* Base Priority */             100,                                    \
+        /* Max Activations */           1,                                      \
+        /* Queued Activations */        0,                                      \
+        /* Task Type */                 TASK_BASIC,                             \
+        /* Preemption */                NON_PREEMPTIVE,                         \
+        /* Queue Index */               0                                       \
+    },                                                                          \
+    { /* Os_TaskTiming10ms */                                                   \
+        /* Context */                   {0, 0, 0},                              \
+        /* Event Mask */                0,                                      \
+        /* Wait Mask */                 0,                                      \
+        /* Entry */                     Os_TaskTiming10ms_Entry,               \
+        /* Stack */                                                             \
+        {                               &Os_ustack_tasktiming10ms_buf[0u],           \
+                                        OS_USTACK_TASKTIMING10MS_SIZE,          \
+                                        &Os_csa_tasktiming10ms_buf[0u],              \
+                                        OS_CSA_TASKTIMING10MS_CALLDEEPTH        \
+        },                                                                      \
+        /* Task ID */                   1,                                      \
+        /* Task State */                SUSPENDED,                              \
+        /* Current Priority */          50,                                     \
+        /* Base Priority */             50,                                     \
+        /* Max Activations */           1,                                      \
+        /* Queued Activations */        0,                                      \
+        /* Task Type */                 TASK_BASIC,                             \
+        /* Preemption */                PREEMPTIVE,                             \
+        /* Queue Index */               1                                       \
+    },                                                                          \
+    { /* Os_TaskEvent20ms */                                                    \
+        /* Context */                   {0, 0, 0},                              \
+        /* Event Mask */                0,                                      \
+        /* Wait Mask */                 0,                                      \
+        /* Entry */                     Os_TaskEvent20ms_Entry,                \
+        /* Stack */                                                             \
+        {                               &Os_ustack_taskevent20ms_buf[0u],            \
+                                        OS_USTACK_TASKEVENT20MS_SIZE,           \
+                                        &Os_csa_taskevent20ms_buf[0u],               \
+                                        OS_CSA_TASKEVENT20MS_CALLDEEPTH         \
+        },                                                                      \
+        /* Task ID */                   2,                                      \
+        /* Task State */                SUSPENDED,                              \
+        /* Current Priority */          50,                                     \
+        /* Base Priority */             50,                                     \
+        /* Max Activations */           1,                                      \
+        /* Queued Activations */        0,                                      \
+        /* Task Type */                 TASK_EXTENDED,                          \
+        /* Preemption */                PREEMPTIVE,                             \
+        /* Queue Index */               1                                       \
     }
 
 /*=================================================================*/

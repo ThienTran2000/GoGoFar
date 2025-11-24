@@ -24,11 +24,10 @@ set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
 
 set(OUTPUT_EXTENSION ".elf")
 # Flags
-set(CMAKE_C_FLAGS_INIT "-mcpu=tc27xx -O2 -Wall -fmessage-length=0 -ffunction-sections -fdata-sections")
-set(CMAKE_ASM_FLAGS_INIT "-mcpu=tc27xx -x assembler-with-cpp")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-mcpu=tc27xx -Wl,--gc-sections -Wl,-Map=../Output/${CMAKE_PROJECT_NAME}.map")
-
+set(CMAKE_C_FLAGS_INIT "-fno-common -fno-short-enums -O0 -g2 -W -Wall -Wextra -Wdiv-by-zero -Warray-bounds -Wcast-align -Wignored-qualifiers -Wformat -Wformat-security -pipe -fshort-double -mtc162 -mversion-info")
+set(CMAKE_ASM_FLAGS_INIT "-Wa,--gdwarf-2 -mtc162 -Wa,--insn32-preferred")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-mcpu=tc39xx -Wl,--gc-sections -mtc162 -Wl,--warn-orphan -Wl,-Map=../Output/${CMAKE_PROJECT_NAME}.map -Wl,--cref -fshort-double -Wl,-n -Wl,--extmap=a ")
 # Optional: custom linker script
-set(LINKER_SCRIPT "../Linker/linker_tc397.ld")
+set(LINKER_SCRIPT "../Linker/GoGoFar_Tc39x.ld")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} -T${LINKER_SCRIPT}")
 

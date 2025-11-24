@@ -3,29 +3,32 @@
 #include "Os_Types.h"
 #include "Os_Cfg.h"
 
+#define OS_USTACK_TASKIDLE_SIZE 512
+#define OS_CSA_TASKIDLE_CALLDEEPTH 20
+
+uint32 Os_ustack_taskidle_buf[OS_USTACK_TASKIDLE_SIZE / 32];
+
+uint64 Os_csa_taskidle_buf[OS_CSA_TASKIDLE_CALLDEEPTH / 64];
+
 Os_TaskControlBlockType Os_TaskTable[NUMBER_OF_TASKS] = {TASK_INIT};
 TaskType Os_AutoStartTasks[NUMBER_OF_AUTOSTART_TASKS] = {TASK_AUTOSTART};
 TaskType Os_RunningTask = INVALID_TASK;
 volatile int Os_ISR_Level = 0;
 volatile bool Os_DeferredSchedule = false;
-Os_TaskContextType Os_IdleTaskContext = {0, 0};
+Os_TaskContextType Os_IdleTaskContext;
+StackType Os_IdleTaskStack = {
+    &Os_ustack_taskinit_buf[0u],
+    OS_USTACK_TASKINIT_SIZE,
+    &Os_csa_taskinit_buf[0u],
+    OS_CSA_TASKINIT_CALLDEEPTH
+};
 
-void Os_CreateContext(Os_TaskContextType* ctx)
+void Os_IdleTask(void)
 {
-    OS_LOG("Create context");
-    ctx->Os_StackPointer = 1;
-    ctx->Os_MSPStackPointer = 1;
-}
-
-void Os_SaveContext(Os_TaskContextType* ctx)
-{
-    ctx->Os_StackPointer = 0;
-    ctx->Os_MSPStackPointer = 0;
-}
-
-void Os_RestoreContext(Os_TaskContextType* ctx)
-{
-
+    for(;;)
+    {
+        // idle loop
+    }
 }
 
 static void Os_Dispatch(TaskType next)
@@ -43,9 +46,12 @@ static void Os_Dispatch(TaskType next)
         /* Should save context of idle task before switch to other task */
         Os_SaveContext(&Os_IdleTaskContext);
     }
-
     Os_RunningTask = next;
     ReadyQueueRemove(next);
+    if ( SUSPENDED == Os_TaskTable[next].TaskState )
+    {
+        Os_ResetContext(&(Os_TaskTable[next].Context), &(Os_TaskTable[next].Stack), Os_TaskTable[next].Entry);
+    }
     Os_TaskTable[next].TaskState = RUNNING;
 
     OS_LOG("Task %d is now RUNNING", next);
@@ -98,7 +104,7 @@ StatusType ActivateTask(TaskType TaskID)
         ReadyQueuePush(TaskID);
         OS_LOG("Task %d activated from SUSPENDED", TaskID);
         /* Os should create context of task if change state from SUSPENDED to READY */
-        Os_CreateContext(&(tcb->Context));
+        Os_InitContext(&(tcb->Context), &(tcb->Stack), tcb->Entry);
     } else {
         if (tcb->QueuedActivations >= tcb->MaxActivations) {
             OS_LOG("Task %d activation limit reached", TaskID);
@@ -235,7 +241,7 @@ StatusType GetTaskState(TaskType TaskID, TaskStateRefType StateRef)
 void Os_ActivateAutoStartTasks(void)
 {
     TaskType TaskID;
-    for (uint8_t i = 0; i < NUMBER_OF_AUTOSTART_TASKS; i++) {
+    for (uint8 i = 0; i < NUMBER_OF_AUTOSTART_TASKS; i++) {
         TaskID = Os_AutoStartTasks[i];
 
         Os_TaskControlBlockType* tcb = &Os_TaskTable[TaskID];
@@ -244,9 +250,9 @@ void Os_ActivateAutoStartTasks(void)
         tcb->QueuedActivations = 1;
         ReadyQueuePush(TaskID);
         OS_LOG("Auto start Task: TaskID=%d", TaskID);
-        Os_CreateContext(&(tcb->Context));
+        Os_InitContext(&(tcb->Context), &(tcb->Stack), tcb->Entry);
         /* Os should create context of task if change state from SUSPENDED to READY */
     }
     /* Create context of Idle Task here */
-    Os_CreateContext(&Os_IdleTaskContext);
+    Os_InitContext(&Os_IdleTaskContext, &Os_IdleTaskStack, &Os_IdleTask);
 }

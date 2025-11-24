@@ -3,7 +3,7 @@
 extern void ReadyQueueInit(ReadyQueueType* q);
 extern ReadyQueueType ReadyQueue[MAX_PRIORITY];
 extern Os_TaskContextType Os_IdleTaskContext;
-bool Os_Running = false;
+bool Os_Running = FALSE;
 
 StatusType GetActiveApplicationMode(AppModeType *Mode) {
     *Mode = OSDEFAULTAPPMODE;
@@ -12,11 +12,12 @@ StatusType GetActiveApplicationMode(AppModeType *Mode) {
 
 StatusType StartOS(AppModeType mode)
 {
+    uint16 idx;
     OS_LOG("StartOS: AppMode=%d", mode);
 
-    Os_Running = true;
+    Os_Running = TRUE;
 
-    for (uint8_t prio = 0; prio < MAX_PRIORITY; prio++) {
+    for (uint8 prio = 0; prio < MAX_PRIORITY; prio++) {
         ReadyQueueInit(&ReadyQueue[prio]);
     }
 
@@ -42,10 +43,10 @@ void ShutdownOS(StatusType Error)
     SHUTDOWN_HOOK_FUNCTION(Error);
 #endif
 
-    Os_Running = false;
+    Os_Running = FALSE;
     Os_RunningTask = INVALID_TASK;
 
-    for (uint8_t prio = 0; prio < MAX_PRIORITY; prio++) {
+    for (uint8 prio = 0; prio < MAX_PRIORITY; prio++) {
         ReadyQueueInit(&ReadyQueue[prio]);
     }
 
