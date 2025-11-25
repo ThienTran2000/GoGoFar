@@ -30,20 +30,6 @@ typedef struct
 
 void isrSTM_0(void);
 
-void Os_SaveContext(Os_TaskContextType* ctx)
-{
-    ctx->PCXI = Ifx_Ssw_MFCR(CPU_PCXI);
-    ctx->FCX = Ifx_Ssw_MFCR(CPU_FCX);
-    ctx->LCX = Ifx_Ssw_MFCR(CPU_LCX);
-}
-
-void Os_RestoreContext(Os_TaskContextType* ctx)
-{
-    Ifx_Ssw_MTCR(CPU_FCX, ctx->FCX);
-    Ifx_Ssw_MTCR(CPU_LCX, ctx->LCX);
-    Ifx_Ssw_MTCR(CPU_PCXI, ctx->PCXI);
-}
-
 void Os_InitContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFunctionPtr)
 {
     uint16 index_u16;

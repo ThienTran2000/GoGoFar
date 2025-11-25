@@ -1,4 +1,5 @@
 #include "Os.h"
+#include "Os_Porting.h"
 
 extern void ReadyQueueInit(ReadyQueueType* q);
 extern ReadyQueueType ReadyQueue[MAX_PRIORITY];
