@@ -24,8 +24,8 @@ set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
 
 set(OUTPUT_EXTENSION ".elf")
 # Flags
-set(CMAKE_C_FLAGS_INIT "-fno-common -fno-short-enums -O0 -g2 -W -Wall -Wextra -Wdiv-by-zero -Warray-bounds -Wcast-align -Wignored-qualifiers -Wformat -Wformat-security -pipe -fshort-double -mtc162 -mversion-info")
-set(CMAKE_ASM_FLAGS_INIT "-Wa,--gdwarf-2 -mtc162 -Wa,--insn32-preferred")
+set(CMAKE_C_FLAGS_INIT "-fno-common -fno-short-enums -O0 -g3 -W -Wall -Wextra -Wdiv-by-zero -Warray-bounds -Wcast-align -Wignored-qualifiers -Wformat -Wformat-security -pipe -fshort-double -mtc162 -mversion-info")
+set(CMAKE_ASM_FLAGS_INIT "-Wa,--gdwarf-2 -mtc162  -O0 -g3 -Wa,--insn32-preferred")
 set(CMAKE_EXE_LINKER_FLAGS_INIT "-mcpu=tc39xx -Wl,--gc-sections -mtc162 -Wl,--warn-orphan -Wl,-Map=../Output/${CMAKE_PROJECT_NAME}.map -Wl,--cref -fshort-double -Wl,-n -Wl,--extmap=a ")
 # Optional: custom linker script
 set(LINKER_SCRIPT "../Linker/GoGoFar_Tc39x.ld")
