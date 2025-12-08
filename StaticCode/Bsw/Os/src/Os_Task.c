@@ -36,7 +36,7 @@ static void Os_Dispatch(TaskType next)
     TaskType current = Os_RunningTask;
     CALL_POST_TASK_HOOK();
     if (current != INVALID_TASK) {
-        Os_SaveContext(&Os_TaskTable[current].Context);
+        CurrentContext_pst = &Os_TaskTable[current].Context;
         if (Os_TaskTable[current].TaskState == RUNNING) {
             Os_TaskTable[current].TaskState = READY;
             ReadyQueuePush(current);
@@ -44,7 +44,7 @@ static void Os_Dispatch(TaskType next)
         }
     } else {
         /* Should save context of idle task before switch to other task */
-        Os_SaveContext(&Os_IdleTaskContext);
+        CurrentContext_pst = &Os_IdleTaskContext;
     }
     Os_RunningTask = next;
     ReadyQueueRemove(next);
@@ -56,7 +56,8 @@ static void Os_Dispatch(TaskType next)
 
     //OS_LOG("Task %d is now RUNNING", next);
     CALL_PRE_TASK_HOOK();
-    Os_RestoreContext(&Os_TaskTable[next].Context);
+    NextContext_pst = &Os_TaskTable[next].Context;
+    Os_SwitchContext();
 }
 
 void Os_Schedule(void)
@@ -82,7 +83,9 @@ void Os_Schedule(void)
     } else {
         if (Os_RunningTask == INVALID_TASK) {
             //OS_LOG("No task is currently running");
-            Os_RestoreContext(&Os_IdleTaskContext);
+            CurrentContext_pst = &DummyContext;
+            NextContext_pst = &Os_IdleTaskContext;
+            Os_SwitchContext();
         }
     }
 }

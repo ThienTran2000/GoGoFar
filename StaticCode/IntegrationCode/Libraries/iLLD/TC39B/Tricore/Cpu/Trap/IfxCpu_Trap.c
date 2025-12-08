@@ -189,15 +189,6 @@ void IfxCpu_Trap_assertion(uint32 tin)
 }
 
 
-void IfxCpu_Trap_systemCall_Cpu0(uint32 tin)
-{
-    volatile IfxCpu_Trap trapWatch;
-    trapWatch = IfxCpu_Trap_extractTrapInfo(IfxCpu_Trap_Class_systemCall, tin);
-    IFX_CFG_CPU_TRAP_SYSCALL_CPU0_HOOK(trapWatch);
-    __asm("rslcx"); /* Restore lower context before returning. lower context was stored in the trap vector */
-    __asm("rfe");
-}
-
 #if IFXCPU_NUM_MODULES >= 2
 void IfxCpu_Trap_systemCall_Cpu1(uint32 tin)
 {
@@ -262,7 +253,7 @@ void IfxCpu_Trap_nonMaskableInterrupt(uint32 tin)
     __asm("rfe");
 }
 
-
+extern void IfxCpu_Trap_systemCall_Cpu0(uint32 tin);
 #if defined(__TASKING__)
 #pragma protect on
 #pragma section code "traptab_cpu0"

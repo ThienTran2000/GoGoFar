@@ -7,6 +7,31 @@
 #define STM_ISR_PRIORITY 1
 #define MODULE_STM0_TICKS_PER_MILISECOND 100000U
 
+Os_TaskContextType  DummyContext;
+Os_TaskContextType* CurrentContext_pst;
+Os_TaskContextType* NextContext_pst;
+
+void IfxCpu_Trap_systemCall_Cpu0(uint32 tin)
+{
+    if ( SWITCH_CONTEXT_TIN == tin )
+    {
+        /* Save current ctx */
+        CurrentContext_pst->PCXI = Ifx_Ssw_MFCR(CPU_PCXI);
+        CurrentContext_pst->FCX = Ifx_Ssw_MFCR(CPU_FCX);
+        CurrentContext_pst->LCX = Ifx_Ssw_MFCR(CPU_LCX);
+
+        /* Restore next ctx */
+        Ifx_Ssw_MTCR(CPU_FCX, NextContext_pst->FCX);
+        Ifx_Ssw_MTCR(CPU_LCX, NextContext_pst->LCX);
+        Ifx_Ssw_MTCR(CPU_PCXI, NextContext_pst->PCXI);
+
+        __dsync();
+
+    }
+    __asm("rslcx"); /* Restore lower context before returning. lower context was stored in the trap vector */
+    __asm("rfe");
+}
+
 typedef struct
 {
     uint32 PCXI;
@@ -27,7 +52,6 @@ typedef struct
     uint32 D15;
 }upperCSAType;
 
-void isrSTM_0(void);
 
 void Os_InitContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFunctionPtr)
 {

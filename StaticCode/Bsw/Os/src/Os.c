@@ -53,5 +53,8 @@ void ShutdownOS(StatusType Error)
 
     //OS_LOG("ShutdownOS: OS stopped. Entering idle state.");
 
-    Os_RestoreContext(&Os_IdleTaskContext);
+    CurrentContext_pst = &DummyContext;
+    NextContext_pst = &Os_IdleTaskContext;
+    Os_SwitchContext();
+
 }
