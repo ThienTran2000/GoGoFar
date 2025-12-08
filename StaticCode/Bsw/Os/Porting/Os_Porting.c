@@ -3,7 +3,6 @@
 #include "IfxStm.h"
 #include "Ifx_Ssw_Infra.h"
 #include "Os_Counter.h"
-#include "HardwareSpecific.h"
 
 #define STM_ISR_PRIORITY 1
 #define MODULE_STM0_TICKS_PER_MILISECOND 100000U
@@ -81,7 +80,6 @@ void Os_ResetContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryF
 }
 void IsrInit_STM(void)
 {
-    Isr_RegisterIsrHandler(isrSTM_0, 0, STM_ISR_PRIORITY);
     /* Config comparator 0 */
     MODULE_STM0.CMCON.B.MSIZE0 = 31u;                                                                       /* Use 31bit to compare */
     MODULE_STM0.CMCON.B.MSTART0 = 0u;                                                                       /* Start compare from bit 0 */
@@ -98,7 +96,8 @@ void IsrInit_STM(void)
 }
 
 /* CAT1 ISR */
-void isrSTM_0(void)
+IFX_INTERRUPT(isrSTM, 0, STM_ISR_PRIORITY);
+void isrSTM(void)
 {
     MODULE_STM0.CMP[IfxStm_Comparator_0].U = MODULE_STM0.TIM0.U + MODULE_STM0_TICKS_PER_MILISECOND;
     IncrementCounter(CounterHardwareTimer);

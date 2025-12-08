@@ -6,7 +6,7 @@
 
 #ifdef LOG_ENABLE
 #include <stdio.h>
-#define OS_LOG(fmt, ...)
+#define //OS_LOG(fmt, ...)
 #else
 #define OS_LOG(fmt, ...)
 #endif

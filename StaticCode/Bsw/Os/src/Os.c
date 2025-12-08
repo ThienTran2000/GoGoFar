@@ -14,7 +14,7 @@ StatusType GetActiveApplicationMode(AppModeType *Mode) {
 StatusType StartOS(AppModeType mode)
 {
     uint16 idx;
-    OS_LOG("StartOS: AppMode=%d", mode);
+    //OS_LOG("StartOS: AppMode=%d", mode);
 
     Os_Running = TRUE;
 
@@ -22,7 +22,7 @@ StatusType StartOS(AppModeType mode)
         ReadyQueueInit(&ReadyQueue[prio]);
     }
 
-    OS_LOG("StartOS: Activating autostart alarms and tasks...");
+    //OS_LOG("StartOS: Activating autostart alarms and tasks...");
     Os_ActivateAutoStartAlarms();
     Os_ActivateAutoStartTasks();
 
@@ -38,7 +38,7 @@ StatusType StartOS(AppModeType mode)
 
 void ShutdownOS(StatusType Error)
 {
-    OS_LOG("ShutdownOS: Shutting down OSEK OS (Error=0x%02X)...\n", Error);
+    //OS_LOG("ShutdownOS: Shutting down OSEK OS (Error=0x%02X)...\n", Error);
 
 #ifdef USESHUTDOWNHOOK
     SHUTDOWN_HOOK_FUNCTION(Error);
@@ -51,7 +51,7 @@ void ShutdownOS(StatusType Error)
         ReadyQueueInit(&ReadyQueue[prio]);
     }
 
-    OS_LOG("ShutdownOS: OS stopped. Entering idle state.");
+    //OS_LOG("ShutdownOS: OS stopped. Entering idle state.");
 
     Os_RestoreContext(&Os_IdleTaskContext);
 }

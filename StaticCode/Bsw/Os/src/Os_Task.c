@@ -8,7 +8,7 @@
 
 uint32 Os_ustack_taskidle_buf[OS_USTACK_TASKIDLE_SIZE / 32];
 
-uint64 Os_csa_taskidle_buf[OS_CSA_TASKIDLE_CALLDEEPTH / 64];
+uint64 Os_csa_taskidle_buf[OS_CSA_TASKIDLE_CALLDEEPTH];
 
 Os_TaskControlBlockType Os_TaskTable[NUMBER_OF_TASKS] = {TASK_INIT};
 TaskType Os_AutoStartTasks[NUMBER_OF_AUTOSTART_TASKS] = {TASK_AUTOSTART};
@@ -40,7 +40,7 @@ static void Os_Dispatch(TaskType next)
         if (Os_TaskTable[current].TaskState == RUNNING) {
             Os_TaskTable[current].TaskState = READY;
             ReadyQueuePush(current);
-            OS_LOG("Task %d moved to READY", current);
+            //OS_LOG("Task %d moved to READY", current);
         }
     } else {
         /* Should save context of idle task before switch to other task */
@@ -54,7 +54,7 @@ static void Os_Dispatch(TaskType next)
     }
     Os_TaskTable[next].TaskState = RUNNING;
 
-    OS_LOG("Task %d is now RUNNING", next);
+    //OS_LOG("Task %d is now RUNNING", next);
     CALL_PRE_TASK_HOOK();
     Os_RestoreContext(&Os_TaskTable[next].Context);
 }
@@ -63,10 +63,10 @@ void Os_Schedule(void)
 {
     Os_DeferredSchedule = false;
     TaskType next = GetHighestReady();
-    OS_LOG("Call scheduler");
+    //OS_LOG("Call scheduler");
     if (next != INVALID_TASK) {
         if (Os_RunningTask == INVALID_TASK) {
-            OS_LOG("No task running, dispatching Task %d", next);
+            //OS_LOG("No task running, dispatching Task %d", next);
             Os_Dispatch(next);
         } else {
             Os_TaskControlBlockType* cur = &Os_TaskTable[Os_RunningTask];
@@ -75,13 +75,13 @@ void Os_Schedule(void)
             if (nxt->CurrentPriority > cur->CurrentPriority &&
                 cur->Preemption == PREEMPTIVE)
             {
-                OS_LOG("Task %d preempted by Task %d", cur->TaskID, nxt->TaskID);
+                //OS_LOG("Task %d preempted by Task %d", cur->TaskID, nxt->TaskID);
                 Os_Dispatch(next);
             }
         }
     } else {
         if (Os_RunningTask == INVALID_TASK) {
-            OS_LOG("No task is currently running");
+            //OS_LOG("No task is currently running");
             Os_RestoreContext(&Os_IdleTaskContext);
         }
     }
@@ -89,9 +89,9 @@ void Os_Schedule(void)
 
 StatusType ActivateTask(TaskType TaskID)
 {
-    OS_LOG("ActivateTask: TaskID=%d", TaskID);
+    //OS_LOG("ActivateTask: TaskID=%d", TaskID);
     if (TaskID >= NUMBER_OF_TASKS) {
-        OS_LOG("ActivateTask failed: invalid ID %d", TaskID);
+        //OS_LOG("ActivateTask failed: invalid ID %d", TaskID);
         CALL_ERROR_HOOK(E_OS_ID);
         return E_OS_ID;
     }
@@ -102,17 +102,17 @@ StatusType ActivateTask(TaskType TaskID)
         tcb->TaskState = READY;
         tcb->QueuedActivations = 1;
         ReadyQueuePush(TaskID);
-        OS_LOG("Task %d activated from SUSPENDED", TaskID);
+        //OS_LOG("Task %d activated from SUSPENDED", TaskID);
         /* Os should create context of task if change state from SUSPENDED to READY */
         Os_InitContext(&(tcb->Context), &(tcb->Stack), tcb->Entry);
     } else {
         if (tcb->QueuedActivations >= tcb->MaxActivations) {
-            OS_LOG("Task %d activation limit reached", TaskID);
+            //OS_LOG("Task %d activation limit reached", TaskID);
             CALL_ERROR_HOOK(E_OS_LIMIT);
             return E_OS_LIMIT;
         }
         tcb->QueuedActivations++;
-        OS_LOG("Task %d queued activation, count=%d", TaskID, tcb->QueuedActivations);
+        //OS_LOG("Task %d queued activation, count=%d", TaskID, tcb->QueuedActivations);
     }
 
     if (Os_ISR_Level > 0) {
@@ -125,9 +125,9 @@ StatusType ActivateTask(TaskType TaskID)
 
 StatusType TerminateTask(void)
 {
-    OS_LOG("TerminateTask: TaskID=%d", Os_RunningTask);
+    //OS_LOG("TerminateTask: TaskID=%d", Os_RunningTask);
     if (Os_RunningTask == INVALID_TASK) {
-        OS_LOG("TerminateTask failed: no running task");
+        //OS_LOG("TerminateTask failed: no running task");
         CALL_ERROR_HOOK(E_OS_STATE);
         return E_OS_STATE;
     }
@@ -138,11 +138,11 @@ StatusType TerminateTask(void)
         tcb->QueuedActivations--;
         tcb->TaskState = READY;
         ReadyQueuePush(tcb->TaskID);
-        OS_LOG("Task %d re-queued, remaining activations=%d", tcb->TaskID, tcb->QueuedActivations);
+        //OS_LOG("Task %d re-queued, remaining activations=%d", tcb->TaskID, tcb->QueuedActivations);
     } else {
         tcb->TaskState = SUSPENDED;
         tcb->QueuedActivations = 0;
-        OS_LOG("Task %d terminated and moved to SUSPENDED", tcb->TaskID);
+        //OS_LOG("Task %d terminated and moved to SUSPENDED", tcb->TaskID);
     }
 
     Os_RunningTask = INVALID_TASK;
@@ -156,10 +156,10 @@ StatusType ChainTask(TaskType TaskID)
         CALL_ERROR_HOOK(E_OS_ID);
         return E_OS_ID;
     }
-    OS_LOG("ChainTask: Terminating current task and activating Task %d", TaskID);
+    //OS_LOG("ChainTask: Terminating current task and activating Task %d", TaskID);
 
     if (Os_RunningTask == INVALID_TASK) {
-        OS_LOG("TerminateTask failed: no running task");
+        //OS_LOG("TerminateTask failed: no running task");
         CALL_ERROR_HOOK(E_OS_STATE);
         return E_OS_STATE;
     }
@@ -170,17 +170,17 @@ StatusType ChainTask(TaskType TaskID)
         tcb->QueuedActivations--;
         tcb->TaskState = READY;
         ReadyQueuePush(tcb->TaskID);
-        OS_LOG("Task %d re-queued, remaining activations=%d", tcb->TaskID, tcb->QueuedActivations);
+        //OS_LOG("Task %d re-queued, remaining activations=%d", tcb->TaskID, tcb->QueuedActivations);
     } else {
         tcb->TaskState = SUSPENDED;
         tcb->QueuedActivations = 0;
-        OS_LOG("Task %d terminated and moved to SUSPENDED", tcb->TaskID);
+        //OS_LOG("Task %d terminated and moved to SUSPENDED", tcb->TaskID);
     }
 
     Os_RunningTask = INVALID_TASK;
 
     if (TaskID >= NUMBER_OF_TASKS) {
-        OS_LOG("ActivateTask failed: invalid ID %d", TaskID);
+        //OS_LOG("ActivateTask failed: invalid ID %d", TaskID);
         CALL_ERROR_HOOK(E_OS_ID);
         return E_OS_ID;
     }
@@ -191,15 +191,15 @@ StatusType ChainTask(TaskType TaskID)
         tcb->TaskState = READY;
         tcb->QueuedActivations = 1;
         ReadyQueuePush(TaskID);
-        OS_LOG("Task %d activated from SUSPENDED", TaskID);
+        //OS_LOG("Task %d activated from SUSPENDED", TaskID);
     } else {
         if (tcb->QueuedActivations >= tcb->MaxActivations) {
-            OS_LOG("Task %d activation limit reached", TaskID);
+            //OS_LOG("Task %d activation limit reached", TaskID);
             CALL_ERROR_HOOK(E_OS_LIMIT);
             return E_OS_LIMIT;
         }
         tcb->QueuedActivations++;
-        OS_LOG("Task %d queued activation, count=%d", TaskID, tcb->QueuedActivations);
+        //OS_LOG("Task %d queued activation, count=%d", TaskID, tcb->QueuedActivations);
     }
 
     Os_Schedule();
@@ -249,7 +249,7 @@ void Os_ActivateAutoStartTasks(void)
         tcb->TaskState = READY;
         tcb->QueuedActivations = 1;
         ReadyQueuePush(TaskID);
-        OS_LOG("Auto start Task: TaskID=%d", TaskID);
+        //OS_LOG("Auto start Task: TaskID=%d", TaskID);
         Os_InitContext(&(tcb->Context), &(tcb->Stack), tcb->Entry);
         /* Os should create context of task if change state from SUSPENDED to READY */
     }

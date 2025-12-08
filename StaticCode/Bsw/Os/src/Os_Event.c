@@ -14,7 +14,7 @@ StatusType Os_SetEvent(TaskType TaskID, EventMaskType Mask) {
 
     Os_TaskControlBlockType* t = &Os_TaskTable[TaskID];
     if (t->TaskType != TASK_EXTENDED) {
-        OS_LOG("ClearEvent: Task %d is Basic Task don't has event to set", t->TaskID);
+        //OS_LOG("ClearEvent: Task %d is Basic Task don't has event to set", t->TaskID);
         CALL_ERROR_HOOK(E_OS_ACCESS);
         return E_OS_ACCESS;
     }
@@ -22,7 +22,7 @@ StatusType Os_SetEvent(TaskType TaskID, EventMaskType Mask) {
     t->EventMask |= Mask;
 
     if (t->TaskState == WAITING && (t->EventMask & t->WaitMask)) {
-        OS_LOG("Event active task %d", TaskID);
+        //OS_LOG("Event active task %d", TaskID);
         t->TaskState = READY;
         t->WaitMask = 0;
         ReadyQueuePush(TaskID);
@@ -38,13 +38,13 @@ StatusType Os_SetEvent(TaskType TaskID, EventMaskType Mask) {
 
 StatusType ClearEvent(EventMaskType Mask) {
     if (INVALID_TASK == Os_RunningTask) {
-        OS_LOG("ClearEvent: No task is running for clear event");
+        //OS_LOG("ClearEvent: No task is running for clear event");
         CALL_ERROR_HOOK(E_OS_ACCESS);
         return E_OS_ACCESS;
     }
     Os_TaskControlBlockType* t = &Os_TaskTable[Os_RunningTask];
     if (t->TaskType != TASK_EXTENDED) {
-        OS_LOG("ClearEvent: Task %d is Basic Task don't has event to clear", t->TaskID);
+        //OS_LOG("ClearEvent: Task %d is Basic Task don't has event to clear", t->TaskID);
         CALL_ERROR_HOOK(E_OS_ACCESS);
         return E_OS_ACCESS;
     }
@@ -72,7 +72,7 @@ StatusType GetEvent(TaskType TaskID, EventMaskType *Mask) {
 StatusType WaitEvent(EventMaskType Mask) {
     Os_TaskControlBlockType* t = &Os_TaskTable[Os_RunningTask];
     if (t->TaskType != TASK_EXTENDED) {
-        OS_LOG("ClearEvent: Task %d is Basic Task don't has event to wait", t->TaskID);
+        //OS_LOG("ClearEvent: Task %d is Basic Task don't has event to wait", t->TaskID);
         CALL_ERROR_HOOK(E_OS_ACCESS);
         return E_OS_ACCESS;
     }
@@ -84,7 +84,7 @@ StatusType WaitEvent(EventMaskType Mask) {
     t->WaitMask = Mask;
     t->TaskState = WAITING;
     Os_RunningTask = INVALID_TASK;
-    OS_LOG("WaitEvent: Task %d is waiting a event", t->TaskID);
+    //OS_LOG("WaitEvent: Task %d is waiting a event", t->TaskID);
     Os_Schedule();
 
     return E_OK;

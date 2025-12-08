@@ -92,5 +92,6 @@ void IncrementCounter(CounterType CounterID) {
             }
         }
     }
-    EXIT_ISR2();
+    /* Workaround, now we call increateCounter in ISR CAT1 due to ISR CAT2 is not available */
+    //EXIT_ISR2();
 }
