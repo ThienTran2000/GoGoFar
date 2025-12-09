@@ -206,6 +206,11 @@ typedef struct
         __ALIGN_TRAP_TAB__;                                                             \
         __asm("svlcx\n\tmov\td4,d15\n\tji\t%0\n" : : "a" (serviceRoutine) : "d4", "d15"); \
     }
+#define IfxCpu_Tsr_CallTSR_SysCall(serviceRoutine)                                              \
+    {                                                                                   \
+        __ALIGN_TRAP_TAB__;                                                             \
+        __asm("mov\td4,d15\n\tji\t%0\n" : : "a" (serviceRoutine) : "d4", "d15"); \
+    }
 #define __ALIGN_TRAP_TAB__ __asm(" .align 32");
 #elif defined(__HIGHTEC__)
 #define __ALIGN_TRAP_TAB__ __asm(" .align 5");

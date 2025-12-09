@@ -280,7 +280,7 @@ void IfxCpu_Trap_vectorTable0(void)
     IfxCpu_Tsr_CallCSATSR(IfxCpu_Trap_contextManagementError);
     IfxCpu_Tsr_CallTSR(IfxCpu_Trap_busError);
     IfxCpu_Tsr_CallTSR(IfxCpu_Trap_assertion);
-    IfxCpu_Tsr_CallTSR(IfxCpu_Trap_systemCall_Cpu0);
+    IfxCpu_Tsr_CallTSR_SysCall(IfxCpu_Trap_systemCall_Cpu0);
     IfxCpu_Tsr_CallTSR(IfxCpu_Trap_nonMaskableInterrupt);
 }
 

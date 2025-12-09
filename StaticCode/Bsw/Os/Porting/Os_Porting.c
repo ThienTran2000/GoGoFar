@@ -28,7 +28,6 @@ void IfxCpu_Trap_systemCall_Cpu0(uint32 tin)
         __dsync();
 
     }
-    __asm("rslcx"); /* Restore lower context before returning. lower context was stored in the trap vector */
     __asm("rfe");
 }
 
