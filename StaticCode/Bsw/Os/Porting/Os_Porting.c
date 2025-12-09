@@ -66,6 +66,8 @@ void Os_InitContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFu
                       ((uint32)((uint32)nxtCsa & ((uint32)0XFFFFU << 6U)) >> 6U);
         if ( 0u == index_u16 )
         {
+            /* Set UL and PIE bit */
+            nextCxi |= 0x00300000;
             ctx->PCXI = nextCxi;
         }
         else
