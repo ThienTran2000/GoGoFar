@@ -71,6 +71,7 @@ void Os_InitContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFu
         }
         else if ( 1u == index_u16 )
         {
+            nextCxi |= 0x3FF00000;
             ctx->PCXI = nextCxi;
         }
         else
