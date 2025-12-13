@@ -71,7 +71,11 @@ void Os_InitContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFu
         }
         else if ( 1u == index_u16 )
         {
-            nextCxi |= 0x3FF00000;
+            nxtCsa[0u] = (firstCxi | 0x300000);
+            nxtCsa[2u] = (uint32)(&stack_pst->ustack_pu8[stack_pst->ustackSize_u32]);
+            nxtCsa[3u] = (uint32)entryFunctionPtr;
+
+            nextCxi |= 0x300000;
             ctx->PCXI = nextCxi;
         }
         else
@@ -90,12 +94,6 @@ void Os_InitContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFu
         nxtCsa += 16; /* Skip 64bytes CSA */
     }
     /* First CXI is TBD as what behavior should be when there are no CSA to restore */
-
-    /* Init SP, RA for pcx CSA */
-    /* Set UL and PIE bit, PCPN to 255 */
-    (((upperCSAType*)stack_pst->csa_pu8)[1u]).PCXI |= ( firstCxi | 0x3FF00000);
-    (((upperCSAType*)stack_pst->csa_pu8)[1u]).SP = (uint32)(&stack_pst->ustack_pu8[stack_pst->ustackSize_u32]);
-    (((upperCSAType*)stack_pst->csa_pu8)[1u]).RA = (uint32)entryFunctionPtr;
 }
 
 void Os_ResetContext(Os_TaskContextType* ctx, StackType* stack_pst, void* entryFunctionPtr)
